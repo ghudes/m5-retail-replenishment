@@ -1,0 +1,15 @@
+# Raw M5 data — download from Kaggle, never commit (see data/download.md)
+data/raw/
+*.csv
+*.zip
+
+# Power BI / Tableau temp files
+*.pbix.bak
+~$*
+*.twbr
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.ipynb_checkpoints/

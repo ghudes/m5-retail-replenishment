@@ -47,14 +47,15 @@ Raw files are **not** committed. Run `data/download.md` instructions to fetch th
 
 ## 4. Architecture
 
+**Platform:** SQL Server 2022 (Developer Edition, free) → Power BI Desktop. All transformation logic is T-SQL in stored procedures; Power BI imports the finished `dim_*` and `fact_*` tables.
+
 ```
-Raw CSVs ──► staging (stg_*) ──► dimensional model (dim_* / fact_*) ──► semantic model ──► Power BI / Tableau
-                │                         │
-            unpivot wide            forecast → inventory simulation → replenishment
-            sales to long
+Raw CSVs ──► stg.usp_load_staging ──► dbo.usp_build_dimensions / facts ──► Power BI (Get data → SQL Server)
+             BULK INSERT +             forecast → inventory simulation
+             STRING_SPLIT unpivot      → replenishment
 ```
 
-**Platform:** TODO — SQL Server Developer Edition *or* Microsoft Fabric trial (decide in week 1)
+One command rebuilds everything: `EXEC dbo.usp_build_all @raw_dir = N'C:\m5\raw';`
 
 ## 5. Star schema
 
@@ -161,9 +162,11 @@ erDiagram
 
 ### Modeling decisions
 
-- **Two grains.** `fact_sales_daily` (~59M rows) stays in SQL for stockout inference. Power BI reads the weekly facts (~8.5M rows) so the model stays fast.
+- **Two grains.** `fact_sales_daily` (59.2M rows) stays in SQL Server for stockout inference. Power BI reads the weekly facts (~8.5M rows) so the model stays fast.
 - **Weekly grain uses Walmart's `wm_yr_wk`** because prices are published at that grain.
 - **SNAP flags live on `dim_date`** as one column per state. TODO: compare against a state-specific `snap_flag` resolved onto the fact.
+- **Loading a 1,947-column file into SQL Server.** Tables max out at 1,024 columns, so each sales line is bulk-loaded as a single text value and unpivoted with `STRING_SPLIT(line, ',', 1)`. The ordinal identifies each value: positions 1–6 are ID fields, position *n* is day `d_(n−6)`. No wide table, no external tool.
+- **Columnstore on the large tables** (`stg.sales_long`, daily facts) for compression and fast aggregation; this also keeps the database well under SQL Server Express's 10 GB cap.
 - **Price is folded into `fact_sales_daily`** rather than a separate price fact, since every sales row needs it.
 
 ## 6. Replenishment logic
@@ -230,15 +233,18 @@ M5 contains sales, not inventory. **Inventory is simulated** under the assumptio
 
 ```
 ├── README.md
+├── build.sql                # SQLCMD script: deploys everything, then runs the build
 ├── data/
-│   └── download.md          # how to get the M5 files (raw data not committed)
-├── sql/
-│   ├── 01_staging/          # load + unpivot raw CSVs
-│   ├── 02_dimensions/
+│   └── download.md          # how to get the M5 files (not committed)
+├── sql/                     # T-SQL, SQL Server 2022
+│   ├── 00_setup/            # database (compat level 160) and schemas
+│   ├── 01_staging/          # stg.usp_load_staging
+│   ├── 02_dimensions/       # dbo.usp_build_dimensions
 │   ├── 03_facts/
 │   ├── 04_forecast/
 │   ├── 05_replenishment/
-│   └── 06_validation/
+│   ├── 06_validation/       # dbo.usp_validate
+│   └── 99_orchestration/    # dbo.usp_build_all
 ├── powerbi/
 │   └── replenishment.pbix
 ├── tableau/
@@ -251,7 +257,17 @@ M5 contains sales, not inventory. **Inventory is simulated** under the assumptio
 
 ## 12. How to run
 
-TODO — step-by-step once platform is chosen.
+Requires SQL Server 2022 (Developer or Express) and Power BI Desktop (Windows).
+
+1. Download the M5 files to `C:\m5\raw` ([`data/download.md`](data/download.md)).
+2. Open `build.sql` and set `RepoDir` and `RawDir` at the top.
+3. Run it, either in SSMS with **Query → SQLCMD Mode** on, or from a command prompt:
+   ```
+   sqlcmd -S localhost -E -C -i "C:\path\to\m5-retail-replenishment\build.sql"
+   ```
+   This creates the `M5` database, deploys the procedures, loads and transforms the data, and prints every validation check. It stops with an error if any check fails.
+4. To rebuild later: `EXEC dbo.usp_build_all @raw_dir = N'C:\m5\raw';`
+5. In Power BI Desktop: **Get data → SQL Server**, server `localhost`, database `M5`, import the `dim_*` and `fact_*` tables.
 
 ## 13. Limitations & next steps
 

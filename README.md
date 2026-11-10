@@ -59,7 +59,7 @@ Raw files are **not** committed. Run `data/download.md` instructions to fetch th
 
 ## 4. Architecture
 
-**Platform:** SQL Server 2022 (Developer Edition, free) → Power BI Desktop. All transformation logic is T-SQL in stored procedures; Power BI imports the finished `dim_*` and `fact_*` tables.
+**Platform:** SQL Server 2025 Express (free) → Power BI Desktop. All transformation logic is T-SQL in stored procedures; Power BI imports the finished `dim_*` and `fact_*` tables.
 
 ```
 Raw CSVs ──► stg.usp_load_staging ──► dbo.usp_build_dimensions / facts ──► Power BI (Get data → SQL Server)
@@ -182,7 +182,7 @@ erDiagram
 - **Weekly grain uses Walmart's `wm_yr_wk`** because prices are published at that grain.
 - **SNAP flags live on `dim_date`** as one column per state. TODO: compare against a state-specific `snap_flag` resolved onto the fact.
 - **Loading a 1,947-column file into SQL Server.** Tables max out at 1,024 columns, so each sales line is bulk-loaded as a single text value and unpivoted with `STRING_SPLIT(line, ',', 1)`. The ordinal identifies each value: positions 1–6 are ID fields, position *n* is day `d_(n−6)`. No wide table, no external tool.
-- **Columnstore on the large tables** (`stg.sales_long`, daily facts) for compression and fast aggregation; this also keeps the database well under SQL Server Express's 10 GB cap.
+- **Columnstore on the large tables** (`stg.sales_long`, daily facts) for compression and fast aggregation.
 - **Price is folded into `fact_sales_daily`** rather than a separate price fact, since every sales row needs it.
 - **`is_listed` flag.** An item has no price in weeks before it was first stocked at a store. Those rows stay in the facts so every series has a complete calendar, but `is_listed = 0` marks them so they don't count as stockouts or forecast misses.
 
@@ -254,7 +254,7 @@ M5 contains sales, not inventory. **Inventory is simulated** under the assumptio
 ├── build.sql                # SQLCMD script: deploys everything, then runs the build
 ├── data/
 │   └── download.md          # how to get the M5 files (not committed)
-├── sql/                     # T-SQL, SQL Server 2022
+├── sql/                     # T-SQL, SQL Server 2025 Express
 │   ├── 00_setup/            # database (compat level 160) and schemas
 │   ├── 01_staging/          # stg.usp_load_staging
 │   ├── 02_dimensions/       # dbo.usp_build_dimensions
@@ -275,7 +275,7 @@ M5 contains sales, not inventory. **Inventory is simulated** under the assumptio
 
 ## 12. How to run
 
-Requires SQL Server 2022 (Developer or Express) and Power BI Desktop (Windows).
+Requires SQL Server 2025 Express and Power BI Desktop (Windows).
 
 1. Download the M5 files to `C:\m5\raw` ([`data/download.md`](data/download.md)).
 2. From the repo root, run:

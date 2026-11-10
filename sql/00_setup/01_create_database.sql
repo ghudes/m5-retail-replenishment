@@ -1,4 +1,4 @@
--- SQL Server 2022 (Developer or Express). Creates the M5 database.
+-- SQL Server 2025 Express. Creates the M5 database.
 -- Compatibility level 160 is required for STRING_SPLIT's ordinal argument.
 
 USE master;

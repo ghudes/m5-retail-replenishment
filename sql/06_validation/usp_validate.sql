@@ -36,6 +36,35 @@ BEGIN
     FROM dbo.dim_date AS d
     WHERE NOT EXISTS (SELECT 1 FROM dbo.dim_week AS w WHERE w.week_key = d.week_key);
 
+    ------------------------------------------------------------------
+    -- Sales facts: row counts and reconciliation back to staging
+    ------------------------------------------------------------------
+    DECLARE @units_staging bigint = (SELECT SUM(CAST(units_sold AS bigint)) FROM stg.sales_long);
+    DECLARE @units_daily   bigint = (SELECT SUM(CAST(units_sold AS bigint)) FROM dbo.fact_sales_daily);
+    DECLARE @units_weekly  bigint = (SELECT SUM(CAST(units_sold AS bigint)) FROM dbo.fact_sales_weekly);
+    DECLARE @rev_daily_c   bigint = (SELECT CAST(SUM(revenue) * 100 AS bigint) FROM dbo.fact_sales_daily);
+    DECLARE @rev_weekly_c  bigint = (SELECT CAST(SUM(revenue) * 100 AS bigint) FROM dbo.fact_sales_weekly);
+
+    INSERT INTO @checks (check_name, actual, expected)
+    SELECT 'fact_sales_daily rows',            COUNT_BIG(*), 59181090 FROM dbo.fact_sales_daily
+    UNION ALL
+    SELECT 'fact_sales_daily duplicate grain',
+           COUNT_BIG(*), 0
+    FROM (SELECT date_key, item_key, store_key FROM dbo.fact_sales_daily
+          GROUP BY date_key, item_key, store_key HAVING COUNT(*) > 1) AS dup
+    UNION ALL
+    SELECT 'units: daily fact vs. staging',    @units_daily,  @units_staging
+    UNION ALL
+    SELECT 'units: weekly fact vs. daily fact', @units_weekly, @units_daily
+    UNION ALL
+    SELECT 'revenue cents: weekly vs. daily',  @rev_weekly_c, @rev_daily_c
+    UNION ALL
+    SELECT 'units sold with no price',         COUNT_BIG(*), 0
+    FROM dbo.fact_sales_daily WHERE units_sold > 0 AND sell_price IS NULL
+    UNION ALL
+    SELECT 'weekly rows over 7 selling days',  COUNT_BIG(*), 0
+    FROM dbo.fact_sales_weekly WHERE selling_days > 7;
+
     SELECT
         check_name,
         actual,
@@ -44,8 +73,11 @@ BEGIN
     FROM @checks
     ORDER BY CASE WHEN actual = expected THEN 1 ELSE 0 END, check_name;
 
-    -- Total units, recorded in the README for the week 2 fact reconciliation
-    SELECT SUM(CAST(units_sold AS bigint)) AS total_units_staging FROM stg.sales_long;
+    -- Headline totals for the README Validation table
+    SELECT
+        @units_staging                                AS total_units,
+        CAST(@rev_daily_c / 100.0 AS decimal(16, 2))  AS total_revenue,
+        (SELECT COUNT_BIG(*) FROM dbo.fact_sales_weekly) AS weekly_fact_rows;
 
     IF EXISTS (SELECT 1 FROM @checks WHERE actual <> expected)
         THROW 50001, 'Validation failed. See the check results above.', 1;

@@ -14,6 +14,6 @@ The raw files are not committed (they total several hundred MB and are governed 
 
 `sales_train_validation.csv` (d_1–d_1913) and `sample_submission.csv` are not used.
 
-4. Put all three in **`C:\m5\raw`** (or any folder, and set `RawDir` in `build.sql` to match).
+4. Put all three in **`C:\m5\raw`** (or any folder, then run `.\build.cmd <that folder>`).
 
    Keep it outside your Windows user folders (Documents, Downloads, Desktop). `BULK INSERT` reads files as the SQL Server service account, which usually can't see inside them.

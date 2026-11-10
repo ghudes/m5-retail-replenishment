@@ -250,6 +250,7 @@ M5 contains sales, not inventory. **Inventory is simulated** under the assumptio
 
 ```
 ├── README.md
+├── build.cmd                # one-command build: .\build.cmd [raw_dir]
 ├── build.sql                # SQLCMD script: deploys everything, then runs the build
 ├── data/
 │   └── download.md          # how to get the M5 files (not committed)
@@ -277,12 +278,14 @@ M5 contains sales, not inventory. **Inventory is simulated** under the assumptio
 Requires SQL Server 2022 (Developer or Express) and Power BI Desktop (Windows).
 
 1. Download the M5 files to `C:\m5\raw` ([`data/download.md`](data/download.md)).
-2. Open `build.sql` and set `RepoDir` and `RawDir` at the top.
-3. Run it, either in SSMS with **Query → SQLCMD Mode** on, or from a command prompt:
+2. From the repo root, run:
    ```
-   sqlcmd -S localhost -E -C -i "C:\path\to\m5-retail-replenishment\build.sql"
+   .\build.cmd
    ```
-   This creates the `M5` database, deploys the procedures, loads and transforms the data, and prints every validation check. It stops with an error if any check fails.
+   If the CSVs are somewhere other than `C:\m5\raw`, pass the folder: `.\build.cmd D:\data\m5`.
+
+   This creates the `M5` database, deploys the procedures, loads and transforms the data, and prints every validation check. It stops with an error if any check fails. Requires `sqlcmd` on the PATH (`winget install sqlcmd` if missing).
+3. Nothing needs editing per machine: `build.sql` uses repo-relative paths and gets the raw folder from `build.cmd`.
 4. To rebuild later: `EXEC dbo.usp_build_all @raw_dir = N'C:\m5\raw';`
 5. In Power BI Desktop: **Get data → SQL Server**, server `localhost`, database `M5`, import the `dim_*` and `fact_*` tables.
 

@@ -18,6 +18,7 @@ Edit the two paths below first.
 :r "$(RepoDir)\sql\00_setup\02_create_schemas.sql"
 :r "$(RepoDir)\sql\01_staging\usp_load_staging.sql"
 :r "$(RepoDir)\sql\02_dimensions\usp_build_dimensions.sql"
+:r "$(RepoDir)\sql\03_facts\usp_build_sales_facts.sql"
 :r "$(RepoDir)\sql\06_validation\usp_validate.sql"
 :r "$(RepoDir)\sql\99_orchestration\usp_build_all.sql"
 

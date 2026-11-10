@@ -5,7 +5,8 @@ GO
 dbo.usp_build_all
 Rebuilds the whole model from the raw CSVs:
     EXEC dbo.usp_build_all @raw_dir = N'C:\m5\raw';
-Steps are added here as weeks 2-4 land (facts, forecast, replenishment).
+Each new build step (forecast, stockouts, replenishment) gets an EXEC here,
+in dependency order, before validation runs.
 */
 CREATE OR ALTER PROCEDURE dbo.usp_build_all
     @raw_dir nvarchar(260)

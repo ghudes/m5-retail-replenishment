@@ -28,6 +28,18 @@ Most public dashboard portfolios stop at "sales went up." This project goes one 
 | Tableau | Public version of the out-of-stock risk view |
 | Data quality | Row-count and total reconciliation from raw files to model |
 
+### Beyond retail
+
+The data is retail, but the pattern is general: **forecast demand → turn it into a decision → measure what being wrong costs.** The same structure shows up wherever a business commits resources ahead of uncertain demand.
+
+| In this project | Finance | Tech / SaaS |
+|---|---|---|
+| Days on hand | Days cash on hand, runway | Capacity headroom |
+| Safety stock | Liquidity buffer | Capacity buffer |
+| Suggested order quantity | Funding or hedging decision | Provisioning or staffing decision |
+| Stockout and lost units | Shortfall cost | SLA breach, lost revenue |
+| Forecast WAPE and bias | Revenue or cash forecast accuracy | Usage or demand forecast accuracy |
+
 ## 3. Data source
 
 **M5 Forecasting — Accuracy** (Walmart via Kaggle): https://www.kaggle.com/competitions/m5-forecasting-accuracy

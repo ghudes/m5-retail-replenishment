@@ -53,6 +53,19 @@ BEGIN
     FROM (SELECT date_key, item_key, store_key FROM dbo.fact_sales_daily
           GROUP BY date_key, item_key, store_key HAVING COUNT(*) > 1) AS dup
     UNION ALL
+    -- One row per series per sales week: 30,490 series x 278 weeks.
+    -- dim_date has day_num for all 1,969 days, so count weeks over sales days only.
+    SELECT 'fact_sales_weekly rows',           COUNT_BIG(*),
+           30490 * (SELECT COUNT_BIG(DISTINCT d.week_key)
+                    FROM dbo.dim_date AS d
+                    WHERE d.day_num IN (SELECT day_num FROM stg.sales_long))
+    FROM dbo.fact_sales_weekly
+    UNION ALL
+    SELECT 'fact_sales_weekly duplicate grain',
+           COUNT_BIG(*), 0
+    FROM (SELECT week_key, item_key, store_key FROM dbo.fact_sales_weekly
+          GROUP BY week_key, item_key, store_key HAVING COUNT(*) > 1) AS dup
+    UNION ALL
     SELECT 'units: daily fact vs. staging',    @units_daily,  @units_staging
     UNION ALL
     SELECT 'units: weekly fact vs. daily fact', @units_weekly, @units_daily

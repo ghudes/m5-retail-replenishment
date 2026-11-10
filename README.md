@@ -284,10 +284,12 @@ Requires SQL Server 2022 (Developer or Express) and Power BI Desktop (Windows).
    ```
    If the CSVs are somewhere other than `C:\m5\raw`, pass the folder: `.\build.cmd D:\data\m5`.
 
+   The build connects to `localhost` (a default instance). For a named instance such as SQL Server Express, pass it as the second argument, `.\build.cmd C:\m5\raw localhost\SQLEXPRESS`, or set it once with `setx SQLCMDSERVER localhost\SQLEXPRESS`.
+
    This creates the `M5` database, deploys the procedures, loads and transforms the data, and prints every validation check. It stops with an error if any check fails. Requires `sqlcmd` on the PATH (`winget install sqlcmd` if missing).
 3. Nothing needs editing per machine: `build.sql` uses repo-relative paths and gets the raw folder from `build.cmd`.
 4. To rebuild later: `EXEC dbo.usp_build_all @raw_dir = N'C:\m5\raw';`
-5. In Power BI Desktop: **Get data → SQL Server**, server `localhost`, database `M5`, import the `dim_*` and `fact_*` tables.
+5. In Power BI Desktop: **Get data → SQL Server**, server `localhost` (or `localhost\SQLEXPRESS`), database `M5`, import the `dim_*` and `fact_*` tables.
 
 ## 13. Limitations & next steps
 

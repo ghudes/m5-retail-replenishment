@@ -126,11 +126,13 @@ erDiagram
     }
     FACT_SALES_DAILY {
         int date_key FK
+        int week_key FK
         int item_key FK
         int store_key FK
         int units_sold
         decimal sell_price
         decimal revenue
+        bit is_listed
     }
     FACT_SALES_WEEKLY {
         int week_key FK
@@ -138,7 +140,9 @@ erDiagram
         int store_key FK
         int units_sold
         decimal revenue
+        decimal sell_price
         int selling_days
+        bit is_listed
     }
     FACT_FORECAST_WEEKLY {
         int week_key FK
@@ -180,6 +184,7 @@ erDiagram
 - **Loading a 1,947-column file into SQL Server.** Tables max out at 1,024 columns, so each sales line is bulk-loaded as a single text value and unpivoted with `STRING_SPLIT(line, ',', 1)`. The ordinal identifies each value: positions 1–6 are ID fields, position *n* is day `d_(n−6)`. No wide table, no external tool.
 - **Columnstore on the large tables** (`stg.sales_long`, daily facts) for compression and fast aggregation; this also keeps the database well under SQL Server Express's 10 GB cap.
 - **Price is folded into `fact_sales_daily`** rather than a separate price fact, since every sales row needs it.
+- **`is_listed` flag.** An item has no price in weeks before it was first stocked at a store. Those rows stay in the facts so every series has a complete calendar, but `is_listed = 0` marks them so they don't count as stockouts or forecast misses.
 
 ## 6. Replenishment logic
 

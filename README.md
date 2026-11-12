@@ -22,7 +22,7 @@ Most public dashboard portfolios stop at "sales went up." This project goes one 
 |---|---|
 | Dimensional modeling | Star schema with conformed item, store, and date/week dimensions |
 | SQL | Staging → model ETL, views, stored procedures, window functions |
-| Forecasting | Baseline weekly forecast with WAPE / bias tracking and error root-cause view |
+| Forecasting | Weekly seasonal naive, moving average, and Holt-Winters forecasts scored on WAPE and bias, with a top-error-contributors view |
 | Replenishment logic | Days on hand, safety stock, reorder point, suggested order qty, projected stockout date, lost units |
 | Power BI | Semantic model, DAX measures, row-level security by state |
 | Tableau | Public version of the out-of-stock risk view |
@@ -151,6 +151,7 @@ erDiagram
         string forecast_method
         decimal forecast_units
         int actual_units
+        decimal error_units
         decimal abs_error
     }
     FACT_REPLENISHMENT_WEEKLY {
@@ -215,10 +216,35 @@ M5 contains sales, not inventory. **Inventory is simulated** under the assumptio
 
 ## 8. Forecast & accuracy
 
-- **Methods:** TODO — seasonal naive (same week last year) and trailing moving average as baselines
-- **Primary metric: WAPE.** Many M5 series are intermittent with lots of zero weeks, so standard MAPE is undefined or unstable there.
-- **Also tracked:** bias (over/under), MAPE on series above a volume threshold
-- **Error root-cause view:** ranks the item × store series contributing the most absolute error each week
+Three one-week-ahead forecasts per item × store × week, all in T-SQL (`dbo.usp_build_forecast`):
+
+| Method | Forecast for week *t* |
+|---|---|
+| `seasonal_naive` | Units sold in week *t* − 52 |
+| `moving_avg_4` | Average units of weeks *t* − 1 … *t* − 4 |
+| `holt_winters` | Additive Holt-Winters: level + trend + 52-week seasonal index, updated every week. α = 0.2, β = 0.05, γ = 0.1, fixed (not tuned). Floored at 0. |
+
+- **Which weeks are forecast.** Listed weeks (`is_listed = 1`) with all 7 selling days, starting after a series' first 52 listed weeks (the seasonal methods need a year of history). For the 10,932 series stocked from the start of the data, that's fiscal 2012 onward; a series stocked later starts a year after it's first listed. All three methods forecast the same 5,106,234 series-weeks, so they compare like for like. The final, 2-day partial week is left out.
+- **No look-ahead.** Each forecast for week *t* uses only actuals from earlier weeks, and the Holt-Winters parameters are fixed in advance rather than fitted, so every week is scored out of sample (a rolling-origin evaluation).
+- **Why Holt-Winters is a loop.** Each week's level, trend, and season depend on the previous week's, so it can't be one set-based query. The procedure loops over the ~225 weeks of history and updates all ~30,000 series in each pass, so it's 225 set-based statements rather than 30,000 × 225 row-by-row steps. Additive rather than multiplicative seasonality because many weeks sell 0 units.
+- **52-week seasonality.** Fiscal 2013 has 53 weeks, so from fiscal 2014 a 52-week lag lands one fiscal week early. Both seasonal methods share this.
+
+**Metrics** (`dbo.usp_build_forecast_accuracy` → `dbo.forecast_accuracy`):
+
+- **WAPE** = Σ|forecast − actual| ÷ Σ actual. Primary metric. MAPE divides each row's error by that row's actual, which is undefined for the many zero-sale weeks in M5 and explodes on 1-unit weeks. WAPE sums first, so it weights each series by volume and never divides by zero.
+- **Bias** = Σ(forecast − actual) ÷ Σ actual. Positive means over-forecasting (excess stock), negative means under-forecasting (stockout risk).
+
+**Results** (WAPE / bias, from the build):
+
+| Window | `moving_avg_4` | `holt_winters` | `seasonal_naive` |
+|---|---|---|---|
+| All weeks (fiscal 2012 – May 2016) | 38.5% / −0.03% | 55.6% / +4.2% | 70.3% / +3.1% |
+| Last 52 weeks | 38.0% / −0.8% | 54.5% / +3.1% | 64.8% / −7.4% |
+| Last 4 weeks (≈ M5's 28-day test period) | 34.6% / −2.7% | 48.7% / −4.4% | 59.5% / −14.3% |
+
+The simplest method wins. The likely reason: at item × store × week, most series are low-volume and noisy, so "the same week last year" mostly repeats last year's noise, and Holt-Winters' seasonal indices are seeded from a single year of that same noise. A short moving average smooths the noise and tracks recent level, which is what matters for a one-week-ahead order. Aggregating to department or store level averages out much of that noise, so estimating seasonality there and applying it to items is a natural next step (Section 13).
+
+**Top error contributors** (`dbo.forecast_top_errors`): every series ranked by its share of each method's absolute error over the last 52 weeks, with a cumulative share. For `moving_avg_4`, 4,428 of 30,106 series (14.7%) account for half of all absolute error, so review effort can go to a short list instead of the whole assortment.
 
 ## 9. Dashboards
 
@@ -259,7 +285,7 @@ M5 contains sales, not inventory. **Inventory is simulated** under the assumptio
 │   ├── 01_staging/          # stg.usp_load_staging
 │   ├── 02_dimensions/       # dbo.usp_build_dimensions
 │   ├── 03_facts/
-│   ├── 04_forecast/
+│   ├── 04_forecast/         # dbo.usp_build_forecast, dbo.usp_build_forecast_accuracy
 │   ├── 05_replenishment/
 │   ├── 06_validation/       # dbo.usp_validate
 │   └── 99_orchestration/    # dbo.usp_build_all
@@ -295,7 +321,8 @@ Requires SQL Server 2025 Express and Power BI Desktop (Windows).
 
 - Inventory is simulated, so suggested orders show the logic, not real stock positions
 - Inferred stockouts can't be distinguished from genuine zero-demand periods with certainty
-- Baseline forecasts are intentionally simple; the project's focus is the decision layer
+- Forecasts are deliberately simple; the project's focus is the decision layer. Holt-Winters parameters are fixed, not tuned, and its seasonality is estimated per series from one year of history
+- Next: tune Holt-Winters on weeks before the evaluation window, and estimate seasonality at department or store level
 - TODO: next steps
 
 ## 14. Why I built this

@@ -15,8 +15,11 @@ command line, so nothing in this file needs editing per machine.
 :r sql\01_staging\usp_load_staging.sql
 :r sql\02_dimensions\usp_build_dimensions.sql
 :r sql\03_facts\usp_build_sales_facts.sql
+:r sql\04_forecast\usp_holt_winters.sql
 :r sql\04_forecast\usp_build_forecast.sql
 :r sql\04_forecast\usp_build_forecast_accuracy.sql
+-- Deployed but not run by the build; run once by hand (see the procedure)
+:r sql\04_forecast\usp_tune_holt_winters.sql
 :r sql\06_validation\usp_validate.sql
 :r sql\99_orchestration\usp_build_all.sql
 

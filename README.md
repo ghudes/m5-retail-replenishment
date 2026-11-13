@@ -222,10 +222,11 @@ Three one-week-ahead forecasts per item × store × week, all in T-SQL (`dbo.usp
 |---|---|
 | `seasonal_naive` | Units sold in week *t* − 52 |
 | `moving_avg_4` | Average units of weeks *t* − 1 … *t* − 4 |
-| `holt_winters` | Additive Holt-Winters: level + trend + 52-week seasonal index, updated every week. α = 0.2, β = 0.05, γ = 0.1, fixed (not tuned). Floored at 0. |
+| `holt_winters` | Additive Holt-Winters: level + trend + 52-week seasonal index, updated every week. α = 0.4, β = 0, γ = 0.6, tuned on earlier weeks (below). Floored at 0. |
 
 - **Which weeks are forecast.** Listed weeks (`is_listed = 1`) with all 7 selling days, starting after a series' first 52 listed weeks (the seasonal methods need a year of history). For the 10,932 series stocked from the start of the data, that's fiscal 2012 onward; a series stocked later starts a year after it's first listed. All three methods forecast the same 5,106,234 series-weeks, so they compare like for like. The final, 2-day partial week is left out.
-- **No look-ahead.** Each forecast for week *t* uses only actuals from earlier weeks, and the Holt-Winters parameters are fixed in advance rather than fitted, so every week is scored out of sample (a rolling-origin evaluation).
+- **No look-ahead.** Each forecast for week *t* uses only actuals from earlier weeks (a rolling-origin evaluation).
+- **Holt-Winters tuning** (`dbo.usp_tune_holt_winters`, run by hand, not part of the build). A grid search scores each α/β/γ set on unit WAPE over the weeks *before* the last 52 full weeks; the model never sees those 52 weeks, so they are a true holdout. One global set for all series, because per-series tuning on a year or two of noisy weekly sales would mostly fit noise. The search took three runs, each started where the last one's best value sat at the edge of its grid, and they agree where they overlap. The best values: α 0.4; β 0 (trend smoothing off: with a starting trend of 0, the model is effectively level + season); γ 0.6 (0.7 scored within 0.002 points, so the result isn't sensitive to it). Tuning-week WAPE fell from 56.0% with the original α 0.2 / β 0.05 / γ 0.1 to 49.9%. The winning values are fixed as defaults in `dbo.usp_build_forecast`, so the build stays deterministic.
 - **Why Holt-Winters is a loop.** Each week's level, trend, and season depend on the previous week's, so it can't be one set-based query. The procedure loops over the ~225 weeks of history and updates all ~30,000 series in each pass, so it's 225 set-based statements rather than 30,000 × 225 row-by-row steps. Additive rather than multiplicative seasonality because many weeks sell 0 units.
 - **52-week seasonality.** Fiscal 2013 has 53 weeks, so from fiscal 2014 a 52-week lag lands one fiscal week early. Both seasonal methods share this.
 
@@ -238,11 +239,13 @@ Three one-week-ahead forecasts per item × store × week, all in T-SQL (`dbo.usp
 
 | Window | `moving_avg_4` | `holt_winters` | `seasonal_naive` |
 |---|---|---|---|
-| All weeks (fiscal 2012 – May 2016) | 38.5% / −0.03% | 55.6% / +4.2% | 70.3% / +3.1% |
-| Last 52 weeks | 38.0% / −0.8% | 54.5% / +3.1% | 64.8% / −7.4% |
-| Last 4 weeks (≈ M5's 28-day test period) | 34.6% / −2.7% | 48.7% / −4.4% | 59.5% / −14.3% |
+| All weeks (fiscal 2012 – May 2016)¹ | 38.5% / −0.03% | 48.8% / +2.8% | 70.3% / +3.1% |
+| Last 52 weeks (holdout) | 38.0% / −0.8% | 46.1% / +1.2% | 64.8% / −7.4% |
+| Last 4 weeks (≈ M5's 28-day test period) | 34.6% / −2.7% | 42.0% / −4.3% | 59.5% / −14.3% |
 
-The simplest method wins. The likely reason: at item × store × week, most series are low-volume and noisy, so "the same week last year" mostly repeats last year's noise, and Holt-Winters' seasonal indices are seeded from a single year of that same noise. A short moving average smooths the noise and tracks recent level, which is what matters for a one-week-ahead order. Aggregating to department or store level averages out much of that noise, so estimating seasonality there and applying it to items is a natural next step (Section 13).
+¹ For Holt-Winters, "All weeks" includes the weeks its parameters were tuned on, so compare methods on the holdout.
+
+Tuning cut Holt-Winters' holdout WAPE from 54.5% to 46.1% and its bias from +3.1% to +1.2%, but the simplest method still wins. The likely reason: at item × store × week, most series are low-volume and noisy, so "the same week last year" mostly repeats last year's noise, and Holt-Winters' seasonal indices are seeded from a single year of that same noise. A short moving average smooths the noise and tracks recent level, which is what matters for a one-week-ahead order. Tuning points the same way: it raised α (weight recent weeks more) and switched the trend off. Aggregating to department or store level averages out much of that noise, so estimating seasonality there and applying it to items is a natural next step (Section 13).
 
 **Top error contributors** (`dbo.forecast_top_errors`): every series ranked by its share of each method's absolute error over the last 52 weeks, with a cumulative share. For `moving_avg_4`, 4,428 of 30,106 series (14.7%) account for half of all absolute error, so review effort can go to a short list instead of the whole assortment.
 
@@ -285,7 +288,7 @@ The simplest method wins. The likely reason: at item × store × week, most seri
 │   ├── 01_staging/          # stg.usp_load_staging
 │   ├── 02_dimensions/       # dbo.usp_build_dimensions
 │   ├── 03_facts/
-│   ├── 04_forecast/         # dbo.usp_build_forecast, dbo.usp_build_forecast_accuracy
+│   ├── 04_forecast/         # forecasts, Holt-Winters (shared + tuning), accuracy
 │   ├── 05_replenishment/
 │   ├── 06_validation/       # dbo.usp_validate
 │   └── 99_orchestration/    # dbo.usp_build_all
@@ -321,8 +324,8 @@ Requires SQL Server 2025 Express and Power BI Desktop (Windows).
 
 - Inventory is simulated, so suggested orders show the logic, not real stock positions
 - Inferred stockouts can't be distinguished from genuine zero-demand periods with certainty
-- Forecasts are deliberately simple; the project's focus is the decision layer. Holt-Winters parameters are fixed, not tuned, and its seasonality is estimated per series from one year of history
-- Next: tune Holt-Winters on weeks before the evaluation window, and estimate seasonality at department or store level
+- Forecasts are deliberately simple; the project's focus is the decision layer. Holt-Winters uses one tuned parameter set for every series, and its seasonality is estimated per series from one year of history
+- Next: estimate seasonality at department or store level and apply it to items
 - TODO: next steps
 
 ## 14. Why I built this

@@ -16,14 +16,23 @@ Tuning weeks vs. holdout
     unit WAPE over the tuning weeks (from each series' 53rd week, as in the
     build), and the winner is then judged on the holdout by the normal build.
 
-Grid (48 sets)
-    alpha (level)   0.05, 0.1, 0.2, 0.3
-    beta  (trend)   0, 0.01, 0.05
-    gamma (season)  0.05, 0.1, 0.2, 0.3
+Grid (8 sets)
+    alpha (level)   0.4, 0.5
+    beta  (trend)   0
+    gamma (season)  0.6, 0.7, 0.8, 0.9
+    This is the last of three runs. Each started where the previous run's
+    best value sat at the edge of its grid, and overlapped it by one value
+    so the runs can be checked against each other:
+      1. alpha, gamma 0.05-0.3; beta 0-0.05 (48 sets).
+         Best alpha = gamma = 0.3, the top of both ranges.
+      2. alpha, gamma 0.3-0.6;  beta 0, 0.01 (32 sets).
+         Best alpha 0.4, inside the range; gamma 0.6, the top again.
+         beta 0 beat 0.01 at every alpha and gamma.
+      3. This grid, to find where gamma stops improving.
 
 Batches
     Every parameter set carries its own level, trend, and 52 season values
-    per series, so all 48 at once would not fit in Express's memory.
+    per series, so all of them at once would not fit in Express's memory.
     @batch_size sets run through dbo.usp_holt_winters together.
 
 Output: dbo.hw_tuning_results, one row per parameter set, ranked by WAPE.
@@ -75,9 +84,9 @@ BEGIN
         b.v AS beta,
         g.v AS gamma
     INTO #grid
-    FROM       (VALUES (0.05e0), (0.1e0), (0.2e0), (0.3e0)) AS a (v)
-    CROSS JOIN (VALUES (0e0), (0.01e0), (0.05e0))           AS b (v)
-    CROSS JOIN (VALUES (0.05e0), (0.1e0), (0.2e0), (0.3e0)) AS g (v);
+    FROM       (VALUES (0.4e0), (0.5e0))                   AS a (v)
+    CROSS JOIN (VALUES (0e0))                              AS b (v)
+    CROSS JOIN (VALUES (0.6e0), (0.7e0), (0.8e0), (0.9e0)) AS g (v);
 
     DROP TABLE IF EXISTS #hw_params;
     CREATE TABLE #hw_params (param_set int PRIMARY KEY, alpha float, beta float, gamma float);

@@ -24,9 +24,16 @@ Which weeks get a forecast
     The last week of the data has only 2 selling days, so it is left out.
 
 No look-ahead
-    Every forecast for week t uses only actuals from weeks before t. The
-    Holt-Winters smoothing parameters are fixed inputs, not fitted to the data,
-    so every forecast is out of sample.
+    Every forecast for week t uses only actuals from weeks before t.
+
+Holt-Winters parameters
+    The defaults below were tuned by dbo.usp_tune_holt_winters (run by hand,
+    not part of the build) on unit WAPE over the weeks before the last 52 full
+    weeks, then fixed here so the build stays deterministic. The tuning never
+    saw the last 52 weeks, so the 'Last 52 weeks' window in
+    dbo.forecast_accuracy is a true holdout for Holt-Winters. The 'All weeks'
+    window includes the tuning weeks, so for Holt-Winters it is partly in
+    sample and flatters it slightly; compare methods on 'Last 52 weeks'.
 
 52-week season
     Fiscal 2013 has 53 weeks, so from fiscal 2014 on a 52-week lag lands one
@@ -34,9 +41,9 @@ No look-ahead
     methods share this.
 */
 CREATE OR ALTER PROCEDURE dbo.usp_build_forecast
-    @alpha float = 0.2,    -- level smoothing
-    @beta  float = 0.05,   -- trend smoothing
-    @gamma float = 0.1     -- season smoothing
+    @alpha float = 0.4,    -- level smoothing   (tuned)
+    @beta  float = 0,      -- trend smoothing   (tuned; 0 = trend stays at its start value of 0)
+    @gamma float = 0.6     -- season smoothing  (tuned)
 AS
 BEGIN
     SET NOCOUNT ON;

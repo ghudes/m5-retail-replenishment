@@ -268,6 +268,128 @@ BEGIN
           FROM dbo.stockout_sensitivity) AS s
     WHERE s.stockouts > s.stockouts_at_larger_alpha;
 
+    ------------------------------------------------------------------
+    -- Replenishment simulation: row counts and demand reconcile to the
+    -- forecast fact; every row's stock flow balances; each week opens
+    -- with the previous week's closing stock; receipts are the orders
+    -- placed one lead time earlier (the build's default L = 1 week).
+    ------------------------------------------------------------------
+    DECLARE @sim_rows bigint, @sim_demand bigint;
+    SELECT @sim_rows   = COUNT_BIG(*),
+           @sim_demand = SUM(CAST(actual_units AS bigint))
+    FROM dbo.fact_forecast_weekly
+    WHERE week_key IN (SELECT TOP (52) week_key
+                       FROM (SELECT DISTINCT week_key FROM dbo.fact_forecast_weekly) AS w
+                       ORDER BY week_key DESC);
+
+    INSERT INTO @checks (check_name, actual, expected)
+    SELECT 'fact_replenishment_weekly rows', COUNT_BIG(*), @sim_rows
+    FROM dbo.fact_replenishment_weekly
+    UNION ALL
+    SELECT 'replenishment demand vs. forecast fact',
+           SUM(CAST(actual_units AS bigint)), @sim_demand
+    FROM dbo.fact_replenishment_weekly
+    UNION ALL
+    SELECT 'fact_replenishment_weekly duplicate grain', COUNT_BIG(*), 0
+    FROM (SELECT week_key, item_key, store_key FROM dbo.fact_replenishment_weekly
+          GROUP BY week_key, item_key, store_key HAVING COUNT(*) > 1) AS dup
+    UNION ALL
+    SELECT 'replenishment rows where stock does not balance', COUNT_BIG(*), 0
+    FROM dbo.fact_replenishment_weekly
+    WHERE available_units    <> on_hand_start + receipt_units
+       OR inventory_position <> available_units + on_order_units
+       OR on_hand_end        <> available_units - units_sold
+       OR actual_units       <> units_sold + lost_units
+       OR units_sold         >  available_units
+       OR (lost_units > 0 AND on_hand_end <> 0)
+    UNION ALL
+    SELECT 'replenishment negative stock, sales, or orders', COUNT_BIG(*), 0
+    FROM dbo.fact_replenishment_weekly
+    WHERE on_hand_end < 0 OR units_sold < 0 OR lost_units < 0 OR suggested_order_qty < 0
+       OR on_order_units < 0 OR safety_stock < 0
+    UNION ALL
+    SELECT 'replenishment weeks not opening at last week''s close', COUNT_BIG(*), 0
+    FROM (SELECT on_hand_start,
+                 LAG(on_hand_end) OVER (PARTITION BY item_key, store_key
+                                        ORDER BY week_key) AS prev_on_hand_end
+          FROM dbo.fact_replenishment_weekly) AS r
+    WHERE r.prev_on_hand_end IS NOT NULL AND r.on_hand_start <> r.prev_on_hand_end
+    UNION ALL
+    SELECT 'replenishment receipts not equal to last week''s order', COUNT_BIG(*), 0
+    FROM (SELECT receipt_units,
+                 LAG(suggested_order_qty, 1, 0) OVER (PARTITION BY item_key, store_key
+                                                      ORDER BY week_key) AS prev_order
+          FROM dbo.fact_replenishment_weekly) AS r
+    WHERE r.receipt_units <> r.prev_order
+    UNION ALL
+    SELECT 'projected stockout dates outside their week', COUNT_BIG(*), 0
+    FROM dbo.fact_replenishment_weekly AS r
+    JOIN dbo.dim_week AS w ON w.week_key = r.week_key
+    WHERE r.projected_stockout_date NOT BETWEEN w.week_start_date AND w.week_end_date
+       OR (r.projected_stockout_date IS NULL AND r.projected_lost_units > 0)
+       OR (r.projected_stockout_date IS NOT NULL AND r.projected_lost_units = 0)
+    UNION ALL
+    -- Order-up-to policy: each order brings position up to order_up_to and
+    -- no further (whole units, so at most 1 unit over). 0.01 of slack
+    -- because order_up_to is stored rounded to 2 decimals.
+    SELECT 'replenishment orders not reaching order-up-to level', COUNT_BIG(*), 0
+    FROM dbo.fact_replenishment_weekly
+    WHERE inventory_position + suggested_order_qty < order_up_to - 0.01
+       OR (suggested_order_qty > 0
+           AND inventory_position + suggested_order_qty - 1 >= order_up_to + 0.01)
+    UNION ALL
+    SELECT 'replenishment_summary rows', COUNT_BIG(*), 1 FROM dbo.replenishment_summary
+    UNION ALL
+    SELECT 'lost units: summary vs. fact', (SELECT lost_units FROM dbo.replenishment_summary),
+           SUM(CAST(lost_units AS bigint))
+    FROM dbo.fact_replenishment_weekly;
+
+    ------------------------------------------------------------------
+    -- Orphan keys: every key in every fact has a row in its dimension.
+    -- Each fact is inner-joined to all its dimensions; rows that drop
+    -- out of the join are orphans. Every dimension key is a primary key,
+    -- so the join can't add rows, only lose them. (Written as joins
+    -- because OR-ed NOT EXISTS ran row by row and took over 25 minutes
+    -- on the 59M-row daily fact.)
+    ------------------------------------------------------------------
+    INSERT INTO @checks (check_name, actual, expected)
+    SELECT 'orphan keys: fact_sales_daily',
+           (SELECT COUNT_BIG(*) FROM dbo.fact_sales_daily)
+         - (SELECT COUNT_BIG(*) FROM dbo.fact_sales_daily AS f
+            JOIN dbo.dim_date  AS d ON d.date_key  = f.date_key
+            JOIN dbo.dim_week  AS w ON w.week_key  = f.week_key
+            JOIN dbo.dim_item  AS i ON i.item_key  = f.item_key
+            JOIN dbo.dim_store AS s ON s.store_key = f.store_key), 0
+    UNION ALL
+    SELECT 'orphan keys: fact_sales_weekly',
+           (SELECT COUNT_BIG(*) FROM dbo.fact_sales_weekly)
+         - (SELECT COUNT_BIG(*) FROM dbo.fact_sales_weekly AS f
+            JOIN dbo.dim_week  AS w ON w.week_key  = f.week_key
+            JOIN dbo.dim_item  AS i ON i.item_key  = f.item_key
+            JOIN dbo.dim_store AS s ON s.store_key = f.store_key), 0
+    UNION ALL
+    SELECT 'orphan keys: fact_forecast_weekly',
+           (SELECT COUNT_BIG(*) FROM dbo.fact_forecast_weekly)
+         - (SELECT COUNT_BIG(*) FROM dbo.fact_forecast_weekly AS f
+            JOIN dbo.dim_week  AS w ON w.week_key  = f.week_key
+            JOIN dbo.dim_item  AS i ON i.item_key  = f.item_key
+            JOIN dbo.dim_store AS s ON s.store_key = f.store_key), 0
+    UNION ALL
+    SELECT 'orphan keys: fact_replenishment_weekly',
+           (SELECT COUNT_BIG(*) FROM dbo.fact_replenishment_weekly)
+         - (SELECT COUNT_BIG(*) FROM dbo.fact_replenishment_weekly AS f
+            JOIN dbo.dim_week  AS w ON w.week_key  = f.week_key
+            JOIN dbo.dim_item  AS i ON i.item_key  = f.item_key
+            JOIN dbo.dim_store AS s ON s.store_key = f.store_key), 0
+    UNION ALL
+    SELECT 'orphan keys: fact_stockout_event',
+           (SELECT COUNT_BIG(*) FROM dbo.fact_stockout_event)
+         - (SELECT COUNT_BIG(*) FROM dbo.fact_stockout_event AS f
+            JOIN dbo.dim_date  AS ds ON ds.date_key = f.start_date_key
+            JOIN dbo.dim_date  AS de ON de.date_key = f.end_date_key
+            JOIN dbo.dim_item  AS i  ON i.item_key  = f.item_key
+            JOIN dbo.dim_store AS s  ON s.store_key = f.store_key), 0;
+
     SELECT
         check_name,
         actual,
@@ -296,6 +418,11 @@ BEGIN
            est_lost_revenue, extended_absences, absence_days
     FROM dbo.stockout_sensitivity
     ORDER BY alpha DESC;
+
+    -- Cost of being wrong, for the README
+    SELECT first_week_key, last_week_key, wape, fill_rate, stockout_week_rate, lost_units,
+           projected_lost_units, lost_revenue, avg_on_hand_units, avg_on_hand_value, avg_days_on_hand
+    FROM dbo.replenishment_summary;
 
     IF EXISTS (SELECT 1 FROM @checks WHERE actual <> expected)
         THROW 50001, 'Validation failed. See the check results above.', 1;

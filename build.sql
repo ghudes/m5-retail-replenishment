@@ -19,6 +19,7 @@ command line, so nothing in this file needs editing per machine.
 :r sql\04_forecast\usp_build_forecast_accuracy.sql
 :r sql\05_replenishment\fn_stockout_min_run_days.sql
 :r sql\05_replenishment\usp_build_stockouts.sql
+:r sql\05_replenishment\usp_build_replenishment.sql
 :r sql\06_validation\usp_validate.sql
 :r sql\99_orchestration\usp_build_all.sql
 

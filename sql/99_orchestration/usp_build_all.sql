@@ -46,6 +46,11 @@ BEGIN
     SET @msg = CONCAT(N'Stockouts inferred (', DATEDIFF(second, @t, SYSDATETIME()), N's)');
     RAISERROR(@msg, 0, 1) WITH NOWAIT;
 
+    SET @t = SYSDATETIME();
+    EXEC dbo.usp_build_replenishment;
+    SET @msg = CONCAT(N'Replenishment simulated (', DATEDIFF(second, @t, SYSDATETIME()), N's)');
+    RAISERROR(@msg, 0, 1) WITH NOWAIT;
+
     EXEC dbo.usp_validate;
 END;
 GO

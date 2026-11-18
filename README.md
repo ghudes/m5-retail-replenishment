@@ -250,7 +250,7 @@ What it shows:
 - **Forecast error hides most of the risk from the planner.** At review time, the forecast shows 125k units at risk; 519k are actually lost. A 4-week average reacts late when demand jumps, so most shortfalls only show up after the order has gone out.
 - **Fast sellers run out more often but lose a smaller share.** Series selling 30+ units a week stock out in 8.1% of weeks, against 2.1% for those selling under 1 a week, yet their fill rate is higher (96.8% vs. 94.0%). Their misses are frequent but small relative to demand.
 
-**The ordering rule mattered more than the forecast.** A first version ordered only when inventory position fell to the reorder point (`forecast × L + safety stock`). With weekly review, a week without an order leaves the stock to cover two weeks, and about three quarters of stockout weeks came right after a skipped order. Ordering up to S every week more than halved lost units in testing (1.21M to about 0.51M over the same 52 weeks), for about 15% more stock.
+**Why order every week.** Ordering only when inventory position falls to the reorder point (`forecast × L + safety stock`) sounds leaner, but with weekly review a skipped order leaves this week's stock to cover two weeks, and the reorder point only protects one. Ordering up to S every week sizes every order for the full L + R.
 
 ### Inferred historical stockouts
 

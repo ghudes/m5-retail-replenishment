@@ -387,8 +387,14 @@ BEGIN
          - (SELECT COUNT_BIG(*) FROM dbo.fact_stockout_event AS f
             JOIN dbo.dim_date  AS ds ON ds.date_key = f.start_date_key
             JOIN dbo.dim_date  AS de ON de.date_key = f.end_date_key
+            JOIN dbo.dim_week  AS w  ON w.week_key  = f.start_week_key
             JOIN dbo.dim_item  AS i  ON i.item_key  = f.item_key
-            JOIN dbo.dim_store AS s  ON s.store_key = f.store_key), 0;
+            JOIN dbo.dim_store AS s  ON s.store_key = f.store_key), 0
+    UNION ALL
+    SELECT 'stockout start_week_key not the start date''s week', COUNT_BIG(*), 0
+    FROM dbo.fact_stockout_event AS f
+    JOIN dbo.dim_date AS d ON d.date_key = f.start_date_key
+    WHERE f.start_week_key <> d.week_key;
 
     SELECT
         check_name,

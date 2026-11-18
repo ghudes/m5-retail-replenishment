@@ -240,6 +240,7 @@ BEGIN
         store_key         smallint       NOT NULL,
         start_date_key    int            NOT NULL,
         end_date_key      int            NOT NULL,
+        start_week_key    int            NOT NULL,   -- week the run starts; Power BI slices events by it
         event_type        varchar(20)    NOT NULL,   -- stockout | extended_absence
         zero_sale_days    int            NOT NULL,
         est_lost_units    decimal(12, 2) NULL,       -- NULL for extended_absence
@@ -249,14 +250,15 @@ BEGIN
     );
 
     INSERT INTO dbo.fact_stockout_event
-        (item_key, store_key, start_date_key, end_date_key, event_type, zero_sale_days,
-         est_lost_units, est_lost_revenue, is_open)
+        (item_key, store_key, start_date_key, end_date_key, start_week_key, event_type,
+         zero_sale_days, est_lost_units, est_lost_revenue, is_open)
     SELECT
-        item_key, store_key, start_date_key, end_date_key, event_type, zero_sale_days,
-        est_lost_units, est_lost_revenue,
-        CAST(CASE WHEN end_date_key = @last_date_key THEN 1 ELSE 0 END AS bit)
-    FROM #events
-    WHERE alpha = @alpha;
+        e.item_key, e.store_key, e.start_date_key, e.end_date_key, d.week_key, e.event_type,
+        e.zero_sale_days, e.est_lost_units, e.est_lost_revenue,
+        CAST(CASE WHEN e.end_date_key = @last_date_key THEN 1 ELSE 0 END AS bit)
+    FROM #events AS e
+    JOIN dbo.dim_date AS d ON d.date_key = e.start_date_key
+    WHERE e.alpha = @alpha;
 
     ------------------------------------------------------------------
     -- dbo.stockout_sensitivity: one row per alpha

@@ -98,6 +98,7 @@ erDiagram
     DIM_STORE ||--o{ FACT_REPLENISHMENT_WEEKLY : store_key
 
     DIM_DATE ||--o{ FACT_STOCKOUT_EVENT : start_date_key
+    DIM_WEEK ||--o{ FACT_STOCKOUT_EVENT : start_week_key
     DIM_ITEM ||--o{ FACT_STOCKOUT_EVENT : item_key
     DIM_STORE ||--o{ FACT_STOCKOUT_EVENT : store_key
 
@@ -188,6 +189,7 @@ erDiagram
         int store_key FK
         int start_date_key FK
         int end_date_key FK
+        int start_week_key FK
         string event_type "stockout | extended_absence"
         int zero_sale_days
         decimal est_lost_units

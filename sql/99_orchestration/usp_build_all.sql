@@ -41,6 +41,11 @@ BEGIN
     SET @msg = CONCAT(N'Forecast accuracy built (', DATEDIFF(second, @t, SYSDATETIME()), N's)');
     RAISERROR(@msg, 0, 1) WITH NOWAIT;
 
+    SET @t = SYSDATETIME();
+    EXEC dbo.usp_build_stockouts;
+    SET @msg = CONCAT(N'Stockouts inferred (', DATEDIFF(second, @t, SYSDATETIME()), N's)');
+    RAISERROR(@msg, 0, 1) WITH NOWAIT;
+
     EXEC dbo.usp_validate;
 END;
 GO

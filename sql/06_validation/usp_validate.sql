@@ -149,6 +149,125 @@ BEGIN
            CAST(SUM(abs_error) * 1000 AS bigint), @fc_abs_error_52_m
     FROM dbo.forecast_top_errors;
 
+    ------------------------------------------------------------------
+    -- Stockouts: reconcile series totals to the daily fact, then check
+    -- every event against the daily rows it covers.
+    ------------------------------------------------------------------
+    DECLARE @listed_days bigint, @listed_units bigint;
+    SELECT @listed_days  = COUNT_BIG(*),
+           @listed_units = SUM(CAST(units_sold AS bigint))
+    FROM dbo.fact_sales_daily
+    WHERE is_listed = 1;
+
+    -- Expand each event to its days and look them up in the daily fact.
+    DECLARE @event_days bigint, @event_days_found bigint, @event_days_bad bigint;
+    SELECT @event_days       = COUNT_BIG(*),
+           @event_days_found = COUNT_BIG(f.date_key),
+           @event_days_bad   = SUM(CASE WHEN f.units_sold > 0 OR f.is_listed = 0 THEN 1 ELSE 0 END)
+    FROM dbo.fact_stockout_event AS e
+    JOIN dbo.dim_date            AS d ON d.date_key BETWEEN e.start_date_key AND e.end_date_key
+    LEFT JOIN dbo.fact_sales_daily AS f
+           ON f.item_key = e.item_key AND f.store_key = e.store_key AND f.date_key = d.date_key;
+
+    DECLARE @last_sales_date_key int = (SELECT MAX(date_key) FROM dbo.fact_sales_daily);
+
+    INSERT INTO @checks (check_name, actual, expected)
+    SELECT 'stockout_series rows',              COUNT_BIG(*), 30490 FROM dbo.stockout_series
+    UNION ALL
+    SELECT 'stockout_series listed days vs. daily fact',  SUM(CAST(listed_days AS bigint)), @listed_days
+    FROM dbo.stockout_series
+    UNION ALL
+    SELECT 'stockout_series listed units vs. daily fact', SUM(listed_units), @listed_units
+    FROM dbo.stockout_series
+    UNION ALL
+    SELECT 'stockout_series absence days vs. events',
+           SUM(CAST(absence_days AS bigint)),
+           (SELECT SUM(CAST(zero_sale_days AS bigint)) FROM dbo.fact_stockout_event
+            WHERE event_type = 'extended_absence')
+    FROM dbo.stockout_series
+    UNION ALL
+    SELECT 'fact_stockout_event duplicate grain', COUNT_BIG(*), 0
+    FROM (SELECT item_key, store_key, start_date_key FROM dbo.fact_stockout_event
+          GROUP BY item_key, store_key, start_date_key HAVING COUNT(*) > 1) AS dup
+    UNION ALL
+    SELECT 'fact_stockout_event overlapping events', COUNT_BIG(*), 0
+    FROM (SELECT start_date_key,
+                 LAG(end_date_key) OVER (PARTITION BY item_key, store_key
+                                         ORDER BY start_date_key) AS prev_end_date_key
+          FROM dbo.fact_stockout_event) AS e
+    WHERE e.start_date_key <= e.prev_end_date_key
+    UNION ALL
+    SELECT 'stockout event days vs. zero_sale_days', @event_days,
+           (SELECT SUM(CAST(zero_sale_days AS bigint)) FROM dbo.fact_stockout_event)
+    UNION ALL
+    SELECT 'stockout event days missing from daily fact', @event_days - @event_days_found, 0
+    UNION ALL
+    SELECT 'stockout event days with sales or unlisted',  @event_days_bad, 0
+    UNION ALL
+    -- Each event must be a whole run: the day before and the day after
+    -- are not listed zero-sale days.
+    SELECT 'stockout events that are not whole runs', COUNT_BIG(*), 0
+    FROM dbo.fact_stockout_event AS e
+    JOIN dbo.dim_date AS ds ON ds.date_key = e.start_date_key
+    JOIN dbo.dim_date AS de ON de.date_key = e.end_date_key
+    WHERE EXISTS (SELECT 1
+                  FROM dbo.fact_sales_daily AS f
+                  JOIN dbo.dim_date AS d ON d.date_key = f.date_key
+                  WHERE f.item_key = e.item_key AND f.store_key = e.store_key
+                    AND d.day_num IN (ds.day_num - 1, de.day_num + 1)
+                    AND f.is_listed = 1 AND f.units_sold = 0)
+    UNION ALL
+    SELECT 'stockouts shorter than series threshold N', COUNT_BIG(*), 0
+    FROM dbo.fact_stockout_event AS e
+    JOIN dbo.stockout_series     AS s ON s.item_key = e.item_key AND s.store_key = e.store_key
+    WHERE e.event_type = 'stockout'
+      AND (s.min_run_days IS NULL OR e.zero_sale_days < s.min_run_days)
+    UNION ALL
+    SELECT 'extended absences shorter than pass-1 N', COUNT_BIG(*), 0
+    FROM dbo.fact_stockout_event AS e
+    JOIN dbo.stockout_series     AS s ON s.item_key = e.item_key AND s.store_key = e.store_key
+    WHERE e.event_type = 'extended_absence'
+      AND (s.min_run_days_all IS NULL OR e.zero_sale_days < s.min_run_days_all)
+    UNION ALL
+    SELECT 'stockouts as long as the shortest absence', COUNT_BIG(*), 0
+    FROM dbo.fact_stockout_event
+    WHERE event_type = 'stockout'
+      AND zero_sale_days >= (SELECT MIN(zero_sale_days) FROM dbo.fact_stockout_event
+                             WHERE event_type = 'extended_absence')
+    UNION ALL
+    SELECT 'stockouts starting on first listed day', COUNT_BIG(*), 0
+    FROM dbo.fact_stockout_event AS e
+    JOIN dbo.stockout_series     AS s ON s.item_key = e.item_key AND s.store_key = e.store_key
+    WHERE e.event_type = 'stockout' AND e.start_date_key = s.first_listed_date_key
+    UNION ALL
+    SELECT 'stockout lost units missing or set on absences', COUNT_BIG(*), 0
+    FROM dbo.fact_stockout_event
+    WHERE (event_type = 'stockout'         AND (est_lost_units IS NULL OR est_lost_revenue IS NULL))
+       OR (event_type = 'extended_absence' AND (est_lost_units IS NOT NULL OR est_lost_revenue IS NOT NULL))
+    UNION ALL
+    SELECT 'stockout is_open flag wrong', COUNT_BIG(*), 0
+    FROM dbo.fact_stockout_event
+    WHERE is_open <> CASE WHEN end_date_key = @last_sales_date_key THEN 1 ELSE 0 END
+    UNION ALL
+    SELECT 'stockout_sensitivity rows',        COUNT_BIG(*), 3 FROM dbo.stockout_sensitivity
+    UNION ALL
+    SELECT 'stockouts: sensitivity (selected) vs. events',
+           (SELECT stockouts FROM dbo.stockout_sensitivity WHERE is_selected = 1),
+           COUNT_BIG(*)
+    FROM dbo.fact_stockout_event WHERE event_type = 'stockout'
+    UNION ALL
+    SELECT 'lost units cents: sensitivity (selected) vs. events',
+           (SELECT CAST(est_lost_units * 100 AS bigint) FROM dbo.stockout_sensitivity WHERE is_selected = 1),
+           CAST(SUM(est_lost_units) * 100 AS bigint)
+    FROM dbo.fact_stockout_event WHERE event_type = 'stockout'
+    UNION ALL
+    -- A smaller alpha is a stricter test, so it can't find more stockouts.
+    SELECT 'stockouts rising as alpha falls', COUNT_BIG(*), 0
+    FROM (SELECT stockouts,
+                 LAG(stockouts) OVER (ORDER BY alpha DESC) AS stockouts_at_larger_alpha
+          FROM dbo.stockout_sensitivity) AS s
+    WHERE s.stockouts > s.stockouts_at_larger_alpha;
+
     SELECT
         check_name,
         actual,
@@ -168,6 +287,15 @@ BEGIN
     SELECT eval_window, first_week_key, last_week_key, weeks, series_weeks, wape, bias
     FROM dbo.forecast_accuracy
     ORDER BY CASE eval_window WHEN 'All weeks' THEN 1 WHEN 'Last 52 weeks' THEN 2 ELSE 3 END;
+
+    -- Inferred stockouts at each alpha, for the README
+    SELECT alpha, is_selected, series_with_stockouts, stockouts, stockout_days,
+           CAST(100.0 * stockout_days / @listed_days AS decimal(5, 2))   AS pct_listed_days,
+           est_lost_units,
+           CAST(100.0 * est_lost_units / @listed_units AS decimal(5, 2)) AS lost_pct_of_units_sold,
+           est_lost_revenue, extended_absences, absence_days
+    FROM dbo.stockout_sensitivity
+    ORDER BY alpha DESC;
 
     IF EXISTS (SELECT 1 FROM @checks WHERE actual <> expected)
         THROW 50001, 'Validation failed. See the check results above.', 1;

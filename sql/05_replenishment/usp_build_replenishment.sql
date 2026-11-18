@@ -34,11 +34,9 @@ For each series and week t:
     reorder_point  forecast x L + safety_stock
                    Reported, not used to trigger orders: stock below it won't
                    last until an order placed today arrives, so it flags
-                   urgent series. (An earlier version ordered only when
-                   position fell to the reorder point. With weekly review
-                   that leaves a skipped week's stock to cover two weeks, and
-                   about three quarters of stockout weeks came right after a
-                   skipped order.)
+                   urgent series. (Ordering only when position falls to the
+                   reorder point would leave a skipped week's stock to cover
+                   two weeks, and the reorder point only protects one.)
 
     1. Receive the order placed L weeks ago.
        available = last week's on_hand_end + receipt

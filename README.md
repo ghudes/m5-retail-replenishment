@@ -198,11 +198,11 @@ erDiagram
     }
 ```
 
-This is the full schema in SQL Server. Power BI imports only the weekly part: `dim_item`, `dim_store`, `dim_week`, and the forecast, replenishment, and stockout facts, all joined at the week grain (section 9). `dim_date` and `fact_sales_daily` stay in SQL Server.
+This is the full schema in SQL Server. Power BI imports only what the dashboards need: `dim_item`, `dim_store`, `dim_week`, and the replenishment and stockout facts, all joined at the week grain (section 9). `dim_date`, `fact_sales_daily`, `fact_sales_weekly`, and `fact_forecast_weekly` stay in SQL Server.
 
 ### Modeling decisions
 
-- **Two grains.** `fact_sales_daily` (59.2M rows) stays in SQL Server for stockout inference. Power BI imports the weekly forecast and replenishment facts (8.1M rows together) and the stockout events, so the model stays fast.
+- **Two grains.** `fact_sales_daily` (59.2M rows) stays in SQL Server for stockout inference. Power BI imports the 52-week replenishment fact (1.6M rows) and the stockout events, so the model stays small.
 - **Weekly grain uses Walmart's `wm_yr_wk`** because prices are published at that grain.
 - **SNAP flags live on `dim_date`** as one column per state (`snap_ca`, `snap_tx`, `snap_wi`).
 - **Loading a 1,947-column file into SQL Server.** Tables max out at 1,024 columns, so each sales line is bulk-loaded as a single text value and unpivoted with `STRING_SPLIT(line, ',', 1)`. The ordinal identifies each value: positions 1–6 are ID fields, position *n* is day `d_(n−6)`. No wide table, no external tool.
@@ -349,13 +349,15 @@ It's deliberately simple. The project's focus is what comes after the forecast: 
 
 A Power BI Desktop project in [`powerbi/`](powerbi/), saved in PBIP format so the model and report are text files that diff in git. It imports from the database the build creates. The server and database name are model parameters (Transform data → Edit parameters), so nothing in the file is machine-specific.
 
-**Model.** `dim_item`, `dim_store`, `dim_week`, `fact_forecast_weekly`, `fact_replenishment_weekly`, and `fact_stockout_event`. Every fact joins to `dim_week` on `week_key`; a stockout event joins on the week its zero-sale run starts (`start_week_key`). There is no daily date table, so auto date/time is off and dates show at week grain.
+**Model.** `dim_item`, `dim_store`, `dim_week`, `fact_replenishment_weekly`, and `fact_stockout_event`. Both facts join to `dim_week`: replenishment on `week_key`, a stockout event on the week its zero-sale run starts (`start_week_key`). There is no daily date table, so auto date/time is off and dates show at week grain.
+
+`fact_replenishment_weekly` carries each week's forecast, actual units, and absolute error (`abs_error`, the same column `fact_forecast_weekly` has in SQL), so forecast accuracy and its cost in stockouts come from the same rows. The validation build checks that its absolute error reconciles to the forecast fact's last 52 weeks. The trade-off: the report's accuracy view covers the simulated 52 weeks; the all-weeks figures in section 8 come from SQL.
 
 | Page | Purpose |
 |---|---|
 | Suggested Order | Items to order in the selected week: quantity, inventory position against reorder point, days on hand, by store |
 | Out-of-Stock Risk | Projected stockouts and lost units by item, store, state; inferred historical stockouts by category |
-| Forecast Accuracy | WAPE / bias trend by week and department; top error contributors (share of absolute error, in DAX from `fact_forecast_weekly`) |
+| Forecast Accuracy | WAPE / bias trend by week and department; top error contributors (share of absolute error, computed in DAX), over the last 52 weeks |
 
 - RLS: CA, TX, and WI roles filter `dim_store[state_id]`, and the filter flows to every fact
 - Screenshots: TODO
@@ -365,7 +367,7 @@ A Power BI Desktop project in [`powerbi/`](powerbi/), saved in PBIP format so th
 
 ## 10. Validation
 
-`dbo.usp_validate` runs at the end of every build and stops it with an error if any check fails. The last full build passed all 62 checks. A selection:
+`dbo.usp_validate` runs at the end of every build and stops it with an error if any check fails. The last full build passed all 64 checks. A selection:
 
 | Check | Expected | Result |
 |---|---|---|
@@ -381,6 +383,7 @@ A Power BI Desktop project in [`powerbi/`](powerbi/), saved in PBIP format so th
 | Stockout events that aren't whole runs, or are shorter than their series' N | 0 | 0 ✓ |
 | `fact_replenishment_weekly` rows vs. last 52 weeks of the forecast fact | Match | 1,580,844 ✓ |
 | Simulated demand vs. forecast fact actuals | Match | 14,511,900 ✓ |
+| Simulation absolute error vs. forecast fact (last 52 weeks) | Match | 5,539,895.25 units ✓ |
 | Simulation rows where stock doesn't balance, or a week doesn't open at last week's close | 0 | 0 ✓ |
 | Orders not bringing position up to the order-up-to level | 0 | 0 ✓ |
 | Duplicate grain in any fact | 0 | 0 ✓ |

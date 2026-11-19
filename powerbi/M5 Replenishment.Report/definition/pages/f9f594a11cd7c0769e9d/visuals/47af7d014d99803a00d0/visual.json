@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
   "name": "47af7d014d99803a00d0",
   "position": {
-    "x": 682.66666666666663,
-    "y": 102.64734299516908,
+    "x": 648,
+    "y": 212,
     "z": 8000,
-    "height": 291.8647342995169,
-    "width": 597.33333333333337,
+    "height": 238,
+    "width": 616,
     "tabOrder": 8000
   },
   "visual": {
@@ -23,11 +23,11 @@
                       "Entity": "dim_week"
                     }
                   },
-                  "Property": "week_start_date"
+                  "Property": "Week"
                 }
               },
-              "queryRef": "dim_week.week_start_date",
-              "nativeQueryRef": "week_start_date",
+              "queryRef": "dim_week.Week",
+              "nativeQueryRef": "Week",
               "active": true
             }
           ]
@@ -75,7 +75,7 @@
                     "Entity": "dim_week"
                   }
                 },
-                "Property": "week_start_date"
+                "Property": "Week"
               }
             },
             "direction": "Ascending"
@@ -84,52 +84,88 @@
         "isDefaultSort": true
       }
     },
+    "objects": {
+      "dataPoint": [
+        {
+          "properties": {
+            "fill": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#C0392B'"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "fact_replenishment_weekly.Lost Units"
+          }
+        },
+        {
+          "properties": {
+            "fill": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Literal": {
+                      "Value": "'#B0B7C0'"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "fact_replenishment_weekly.Projected Lost Units"
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Lost units: simulated vs. projected'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Last 52 weeks, by week'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "8c5179a19ae30050edc1",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "dim_week"
-              }
-            },
-            "Property": "week_start_date"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "913a6610eea05c16a560",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "fact_replenishment_weekly"
-              }
-            },
-            "Property": "Projected Lost Units"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "8ef344b16139a39a6310",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "fact_replenishment_weekly"
-              }
-            },
-            "Property": "Lost Units"
-          }
-        },
-        "type": "Advanced"
-      }
-    ]
   }
 }

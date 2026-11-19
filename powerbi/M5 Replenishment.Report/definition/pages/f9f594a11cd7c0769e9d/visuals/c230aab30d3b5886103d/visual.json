@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
   "name": "c230aab30d3b5886103d",
   "position": {
-    "x": 0,
-    "y": 103.15789473684211,
+    "x": 16,
+    "y": 212,
     "z": 7000,
-    "height": 616.84210526315792,
-    "width": 683.15789473684208,
+    "height": 492,
+    "width": 616,
     "tabOrder": 7000
   },
   "visual": {
@@ -23,11 +23,11 @@
                       "Entity": "dim_store"
                     }
                   },
-                  "Property": "store_id"
+                  "Property": "Store"
                 }
               },
-              "queryRef": "dim_store.store_id",
-              "nativeQueryRef": "store_id"
+              "queryRef": "dim_store.Store",
+              "nativeQueryRef": "Store"
             },
             {
               "field": {
@@ -37,11 +37,11 @@
                       "Entity": "dim_item"
                     }
                   },
-                  "Property": "item_id"
+                  "Property": "Item"
                 }
               },
-              "queryRef": "dim_item.item_id",
-              "nativeQueryRef": "item_id"
+              "queryRef": "dim_item.Item",
+              "nativeQueryRef": "Item"
             },
             {
               "field": {
@@ -55,7 +55,8 @@
                 }
               },
               "queryRef": "fact_replenishment_weekly.Available Units",
-              "nativeQueryRef": "Available Units"
+              "nativeQueryRef": "Available Units",
+              "displayName": "Available"
             },
             {
               "field": {
@@ -69,7 +70,8 @@
                 }
               },
               "queryRef": "fact_replenishment_weekly.Week Forecast",
-              "nativeQueryRef": "Week Forecast"
+              "nativeQueryRef": "Week Forecast",
+              "displayName": "Forecast"
             },
             {
               "field": {
@@ -83,7 +85,8 @@
                 }
               },
               "queryRef": "fact_replenishment_weekly.Projected Stockout Date",
-              "nativeQueryRef": "Projected Stockout Date"
+              "nativeQueryRef": "Projected Stockout Date",
+              "displayName": "Stockout Date"
             },
             {
               "field": {
@@ -97,7 +100,8 @@
                 }
               },
               "queryRef": "fact_replenishment_weekly.Projected Lost Units",
-              "nativeQueryRef": "Projected Lost Units"
+              "nativeQueryRef": "Projected Lost Units",
+              "displayName": "Proj. Lost"
             }
           ]
         }
@@ -128,6 +132,51 @@
               "expr": {
                 "Literal": {
                   "Value": "'Default'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Projected stockouts by item and store'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_week"
+                    }
+                  },
+                  "Property": "Selected Week Label"
                 }
               }
             }
@@ -187,90 +236,6 @@
           ]
         },
         "howCreated": "User"
-      },
-      {
-        "name": "fc79acccb65e284d364e",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "dim_store"
-              }
-            },
-            "Property": "store_id"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "d6efe38a03471958d741",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "dim_item"
-              }
-            },
-            "Property": "item_id"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "e4bd020060c9b33313d1",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "fact_replenishment_weekly"
-              }
-            },
-            "Property": "Available Units"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "0d29e160d496e6c0990d",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "fact_replenishment_weekly"
-              }
-            },
-            "Property": "Week Forecast"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "d34cfc33ee8de64b6e5a",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "fact_replenishment_weekly"
-              }
-            },
-            "Property": "Projected Stockout Date"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "92976479ade7e4d6c6a1",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "fact_replenishment_weekly"
-              }
-            },
-            "Property": "Projected Lost Units"
-          }
-        },
-        "type": "Advanced"
       }
     ]
   }

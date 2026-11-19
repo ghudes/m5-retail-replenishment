@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
   "name": "120985c6b828ae2a59cd",
   "position": {
-    "x": 955.20704845815021,
-    "y": 0,
+    "x": 896,
+    "y": 12,
     "z": 2000,
-    "height": 58.6431718061674,
-    "width": 162.39647577092512,
+    "height": 68,
+    "width": 180,
     "tabOrder": 2000
   },
   "visual": {
@@ -23,11 +23,11 @@
                       "Entity": "dim_item"
                     }
                   },
-                  "Property": "cat_id"
+                  "Property": "Category"
                 }
               },
-              "queryRef": "dim_item.cat_id",
-              "nativeQueryRef": "cat_id",
+              "queryRef": "dim_item.Category",
+              "nativeQueryRef": "Category",
               "active": true
             }
           ]
@@ -50,7 +50,7 @@
       ]
     },
     "syncGroup": {
-      "groupName": "cat_id",
+      "groupName": "Category",
       "fieldChanges": true,
       "filterChanges": true
     },

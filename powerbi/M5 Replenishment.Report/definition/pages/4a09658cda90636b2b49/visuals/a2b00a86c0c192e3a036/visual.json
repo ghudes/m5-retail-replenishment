@@ -2,12 +2,12 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
   "name": "a2b00a86c0c192e3a036",
   "position": {
-    "x": 0,
-    "y": 103.15789473684211,
-    "z": 7000,
-    "height": 616.84210526315792,
-    "width": 683.15789473684208,
-    "tabOrder": 7000
+    "x": 16,
+    "y": 212,
+    "z": 5000,
+    "height": 492,
+    "width": 616,
+    "tabOrder": 5000
   },
   "visual": {
     "visualType": "tableEx",
@@ -20,28 +20,28 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_item"
+                      "Entity": "dim_store"
                     }
                   },
-                  "Property": "item_id"
+                  "Property": "Store"
                 }
               },
-              "queryRef": "dim_item.item_id",
-              "nativeQueryRef": "item_id"
+              "queryRef": "dim_store.Store",
+              "nativeQueryRef": "Store"
             },
             {
               "field": {
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_store"
+                      "Entity": "dim_item"
                     }
                   },
-                  "Property": "store_id"
+                  "Property": "Item"
                 }
               },
-              "queryRef": "dim_store.store_id",
-              "nativeQueryRef": "store_id"
+              "queryRef": "dim_item.Item",
+              "nativeQueryRef": "Item"
             },
             {
               "field": {
@@ -147,6 +147,46 @@
             }
           }
         }
+      ],
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Top error contributors'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Share of absolute error in the selected weeks'"
+                }
+              }
+            }
+          }
+        }
       ]
     },
     "drillFilterOtherVisuals": true
@@ -167,104 +207,6 @@
         },
         "type": "Advanced",
         "howCreated": "User"
-      },
-      {
-        "name": "7b7cad8ab8020ad000ab",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "dim_store"
-              }
-            },
-            "Property": "store_id"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "5597d0e2bc3c308baad8",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "dim_item"
-              }
-            },
-            "Property": "item_id"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "ccc53540d1e508370a42",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "fact_forecast_weekly"
-              }
-            },
-            "Property": "Actual Units"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "df15208033002baa8533",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "fact_forecast_weekly"
-              }
-            },
-            "Property": "Forecast Units"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "7ddeb9bdb6aec07a4db7",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "fact_forecast_weekly"
-              }
-            },
-            "Property": "Abs Error"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "84a2b73d7370d4e7d137",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "fact_forecast_weekly"
-              }
-            },
-            "Property": "Share of Abs Error"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "5fb87d1149084d047433",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "fact_forecast_weekly"
-              }
-            },
-            "Property": "Bias"
-          }
-        },
-        "type": "Advanced"
       }
     ]
   }

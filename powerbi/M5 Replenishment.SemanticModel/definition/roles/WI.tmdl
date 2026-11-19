@@ -2,7 +2,7 @@
 role WI
 	modelPermission: read
 
-	tablePermission dim_store = [state_id] = "WI"
+	tablePermission dim_store = [State] = "WI"
 
 	annotation PBI_Id = a32b976a742f43759a54defd52f8e1ba
 

@@ -2,12 +2,12 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
   "name": "88253905e67d4293e512",
   "position": {
-    "x": 577.48670776880112,
-    "y": 0,
-    "z": 1000,
-    "height": 58.351115421920468,
-    "width": 142.77400581959265,
-    "tabOrder": 1000
+    "x": 708,
+    "y": 12,
+    "z": 0,
+    "height": 68,
+    "width": 180,
+    "tabOrder": 0
   },
   "visual": {
     "visualType": "slicer",
@@ -23,11 +23,11 @@
                       "Entity": "dim_store"
                     }
                   },
-                  "Property": "state_id"
+                  "Property": "State"
                 }
               },
-              "queryRef": "dim_store.state_id",
-              "nativeQueryRef": "state_id",
+              "queryRef": "dim_store.State",
+              "nativeQueryRef": "State",
               "active": true
             }
           ]
@@ -50,7 +50,7 @@
       ]
     },
     "syncGroup": {
-      "groupName": "state_id",
+      "groupName": "State",
       "fieldChanges": true,
       "filterChanges": true
     },
@@ -59,7 +59,7 @@
   "filterConfig": {
     "filters": [
       {
-        "name": "a810132c205763d1d864",
+        "name": "7d597294378663a0138e",
         "field": {
           "Column": {
             "Expression": {
@@ -67,7 +67,7 @@
                 "Entity": "dim_store"
               }
             },
-            "Property": "state_id"
+            "Property": "State"
           }
         },
         "type": "Categorical"

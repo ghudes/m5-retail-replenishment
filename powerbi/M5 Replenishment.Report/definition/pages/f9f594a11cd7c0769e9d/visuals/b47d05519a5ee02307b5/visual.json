@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
   "name": "b47d05519a5ee02307b5",
   "position": {
-    "x": 1117.6035242290745,
-    "y": 0,
+    "x": 1084,
+    "y": 12,
     "z": 0,
-    "height": 58.6431718061674,
-    "width": 162.39647577092512,
+    "height": 68,
+    "width": 180,
     "tabOrder": 0
   },
   "visual": {
@@ -23,11 +23,11 @@
                       "Entity": "dim_week"
                     }
                   },
-                  "Property": "week_start_date"
+                  "Property": "Week"
                 }
               },
-              "queryRef": "dim_week.week_start_date",
-              "nativeQueryRef": "week_start_date",
+              "queryRef": "dim_week.Week",
+              "nativeQueryRef": "Week",
               "active": true
             }
           ]
@@ -43,7 +43,7 @@
                     "Entity": "dim_week"
                   }
                 },
-                "Property": "week_start_date"
+                "Property": "Week"
               }
             },
             "direction": "Descending"
@@ -97,7 +97,7 @@
                                   "Source": "d"
                                 }
                               },
-                              "Property": "week_start_date"
+                              "Property": "Week"
                             }
                           }
                         ],
@@ -132,6 +132,11 @@
           }
         }
       ]
+    },
+    "syncGroup": {
+      "groupName": "Week",
+      "fieldChanges": true,
+      "filterChanges": true
     },
     "drillFilterOtherVisuals": true
   },
@@ -189,20 +194,6 @@
           ]
         },
         "howCreated": "User"
-      },
-      {
-        "name": "3b9d4240106c88a50434",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "dim_week"
-              }
-            },
-            "Property": "week_start_date"
-          }
-        },
-        "type": "Categorical"
       }
     ]
   }

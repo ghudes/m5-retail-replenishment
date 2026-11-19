@@ -2,7 +2,7 @@
 role CA
 	modelPermission: read
 
-	tablePermission dim_store = [state_id] = "CA"
+	tablePermission dim_store = [State] = "CA"
 
 	annotation PBI_Id = 266f6b598c484fa39ec0b74911bffc7f
 

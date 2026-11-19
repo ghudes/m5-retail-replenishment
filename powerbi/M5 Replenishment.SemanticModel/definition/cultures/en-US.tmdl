@@ -1,2 +1,126 @@
 cultureInfo en-US
 
+	linguisticMetadata =
+			{
+			  "Version": "2.0.0",
+			  "Language": "en-US",
+			  "Entities": {
+			    "fact_replenishment_weekly.available_units": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fact_replenishment_weekly",
+			          "ConceptualProperty": "Available Units"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Available": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fact_replenishment_weekly.week_forecast": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fact_replenishment_weekly",
+			          "ConceptualProperty": "Week Forecast"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Forecast": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Forecast Units": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fact_replenishment_weekly.projected_stockout_date": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fact_replenishment_weekly",
+			          "ConceptualProperty": "Projected Stockout Date"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Stockout Date": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fact_replenishment_weekly.projected_lost_units": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fact_replenishment_weekly",
+			          "ConceptualProperty": "Projected Lost Units"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Proj. Lost": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fact_replenishment_weekly.demand_units": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fact_replenishment_weekly",
+			          "ConceptualProperty": "Demand Units"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Actual Units": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    }
+			  }
+			}
+		contentType: json
+

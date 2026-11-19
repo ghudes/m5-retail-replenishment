@@ -2,12 +2,12 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
   "name": "b310f0044a6b89037082",
   "position": {
-    "x": 682.66666666666663,
-    "y": 102.64734299516908,
-    "z": 8000,
-    "height": 291.8647342995169,
-    "width": 597.33333333333337,
-    "tabOrder": 8000
+    "x": 648,
+    "y": 212,
+    "z": 6000,
+    "height": 238,
+    "width": 616,
+    "tabOrder": 6000
   },
   "visual": {
     "visualType": "lineChart",
@@ -23,11 +23,11 @@
                       "Entity": "dim_week"
                     }
                   },
-                  "Property": "week_start_date"
+                  "Property": "Week"
                 }
               },
-              "queryRef": "dim_week.week_start_date",
-              "nativeQueryRef": "week_start_date",
+              "queryRef": "dim_week.Week",
+              "nativeQueryRef": "Week",
               "active": true
             }
           ]
@@ -75,7 +75,7 @@
                     "Entity": "dim_week"
                   }
                 },
-                "Property": "week_start_date"
+                "Property": "Week"
               }
             },
             "direction": "Ascending"
@@ -84,52 +84,48 @@
         "isDefaultSort": true
       }
     },
-    "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "ff7b781179a8d4e08c80",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "dim_week"
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
               }
             },
-            "Property": "week_start_date"
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'WAPE and bias by week'"
+                }
+              }
+            }
           }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "b72026e00dd96c7dd39a",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "fact_forecast_weekly"
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
               }
             },
-            "Property": "WAPE"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "d371888c7ae01a2a075b",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "fact_forecast_weekly"
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Bias above 0% = over-forecast'"
+                }
               }
-            },
-            "Property": "Bias"
+            }
           }
-        },
-        "type": "Advanced"
-      }
-    ]
+        }
+      ]
+    }
   }
 }

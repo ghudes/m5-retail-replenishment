@@ -2,12 +2,12 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
   "name": "ab8da54bc0ba3692b447",
   "position": {
-    "x": 683,
-    "y": 395,
-    "z": 9000,
-    "height": 325,
-    "width": 597,
-    "tabOrder": 9000
+    "x": 648,
+    "y": 466,
+    "z": 7000,
+    "height": 238,
+    "width": 616,
+    "tabOrder": 7000
   },
   "visual": {
     "visualType": "barChart",
@@ -23,11 +23,11 @@
                       "Entity": "dim_item"
                     }
                   },
-                  "Property": "dept_id"
+                  "Property": "Department"
                 }
               },
-              "queryRef": "dim_item.dept_id",
-              "nativeQueryRef": "dept_id",
+              "queryRef": "dim_item.Department",
+              "nativeQueryRef": "Department",
               "active": true
             }
           ]
@@ -70,38 +70,48 @@
         "isDefaultSort": true
       }
     },
-    "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "b365eb23eb422d32e52d",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "dim_item"
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
               }
             },
-            "Property": "dept_id"
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'WAPE by department'"
+                }
+              }
+            }
           }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "ddc094c3287d4349c320",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "fact_forecast_weekly"
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
               }
             },
-            "Property": "WAPE"
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Selected weeks'"
+                }
+              }
+            }
           }
-        },
-        "type": "Advanced"
-      }
-    ]
+        }
+      ]
+    }
   }
 }

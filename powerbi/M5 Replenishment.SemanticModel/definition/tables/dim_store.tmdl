@@ -1,4 +1,4 @@
-/// One row per store. RLS roles filter this table by state_id.
+/// One row per store. RLS roles filter this table by State.
 table dim_store
 	lineageTag: d689e0d9-6e39-4e93-811c-9da5d8768149
 
@@ -10,13 +10,13 @@ table dim_store
 		summarizeBy: none
 		sourceColumn: store_key
 
-	column store_id
+	column Store
 		dataType: string
 		lineageTag: 26b22fd8-2c7e-448f-b24f-d2c0589b9dad
 		summarizeBy: none
 		sourceColumn: store_id
 
-	column state_id
+	column State
 		dataType: string
 		lineageTag: a40a76b5-97ec-423e-a176-893ae11a88d1
 		summarizeBy: none

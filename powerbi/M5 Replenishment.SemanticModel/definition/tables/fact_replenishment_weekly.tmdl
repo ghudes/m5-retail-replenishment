@@ -152,7 +152,7 @@ table fact_replenishment_weekly
 
 	/// Earliest day stock runs out at the forecast rate, before the next delivery.
 	measure 'Projected Stockout Date' = MIN(fact_replenishment_weekly[projected_stockout_date])
-		formatString: yyyy-mm-dd
+		formatString: ddd, mmm d
 		displayFolder: Replenishment
 		lineageTag: 2d0e149d-3d12-403b-93b3-57ed87d52948
 

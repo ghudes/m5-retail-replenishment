@@ -2,6 +2,12 @@
 table dim_week
 	lineageTag: 4483c8c7-4bf5-4e9e-92a5-5efb8ccc8684
 
+	/// "Week of <date>" for the one week selected on a page. Visual subtitles use it.
+	measure 'Selected Week Label' =
+			VAR w = SELECTEDVALUE(dim_week[Week])
+			RETURN IF(ISBLANK(w), "All simulated weeks", "Week of " & FORMAT(w, "mmm d, yyyy"))
+		lineageTag: f26198bd-4fd7-43bd-8593-a29d959dba50
+
 	column week_key
 		dataType: int64
 		formatString: 0
@@ -9,9 +15,9 @@ table dim_week
 		summarizeBy: none
 		sourceColumn: week_key
 
-	column week_start_date
+	column Week
 		dataType: dateTime
-		formatString: yyyy-mm-dd
+		formatString: mmm d, yyyy
 		lineageTag: 9aff1525-fa16-496a-98cd-bdc90e35c844
 		summarizeBy: none
 		sourceColumn: week_start_date

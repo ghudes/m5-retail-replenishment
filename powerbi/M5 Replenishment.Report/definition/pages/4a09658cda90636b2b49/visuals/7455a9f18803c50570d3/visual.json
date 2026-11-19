@@ -2,12 +2,12 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
   "name": "7455a9f18803c50570d3",
   "position": {
-    "x": 883.01449275362324,
-    "y": 0,
-    "z": 9001,
-    "height": 102.64734299516908,
-    "width": 396.98550724637681,
-    "tabOrder": 9001
+    "x": 964,
+    "y": 92,
+    "z": 8000,
+    "height": 104,
+    "width": 300,
+    "tabOrder": 8000
   },
   "visual": {
     "visualType": "slicer",
@@ -23,11 +23,11 @@
                       "Entity": "dim_week"
                     }
                   },
-                  "Property": "week_start_date"
+                  "Property": "Week"
                 }
               },
-              "queryRef": "dim_week.week_start_date",
-              "nativeQueryRef": "week_start_date",
+              "queryRef": "dim_week.Week",
+              "nativeQueryRef": "Week",
               "active": true
             }
           ]
@@ -43,7 +43,7 @@
                     "Entity": "dim_week"
                   }
                 },
-                "Property": "week_start_date"
+                "Property": "Week"
               }
             },
             "direction": "Ascending"
@@ -77,7 +77,7 @@
   "filterConfig": {
     "filters": [
       {
-        "name": "5306c8451008140b15cd",
+        "name": "375fb51b5b0ac6922169",
         "field": {
           "Column": {
             "Expression": {
@@ -85,7 +85,7 @@
                 "Entity": "dim_week"
               }
             },
-            "Property": "week_start_date"
+            "Property": "Week"
           }
         },
         "type": "Categorical"

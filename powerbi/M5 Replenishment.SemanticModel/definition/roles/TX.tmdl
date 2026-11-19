@@ -2,7 +2,7 @@
 role TX
 	modelPermission: read
 
-	tablePermission dim_store = [state_id] = "TX"
+	tablePermission dim_store = [State] = "TX"
 
 	annotation PBI_Id = ee3c52e874cb4679b53bc2b12182fb75
 

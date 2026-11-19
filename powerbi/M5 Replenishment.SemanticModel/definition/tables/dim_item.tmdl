@@ -10,19 +10,19 @@ table dim_item
 		summarizeBy: none
 		sourceColumn: item_key
 
-	column item_id
+	column Item
 		dataType: string
 		lineageTag: f965c66a-dcf0-4073-8f42-59b758499a01
 		summarizeBy: none
 		sourceColumn: item_id
 
-	column dept_id
+	column Department
 		dataType: string
 		lineageTag: 03eca847-c7c4-47c9-bc87-ef36a023e392
 		summarizeBy: none
 		sourceColumn: dept_id
 
-	column cat_id
+	column Category
 		dataType: string
 		lineageTag: 78f4c9f5-2cfc-4804-8ccd-5aed38a87b88
 		summarizeBy: none

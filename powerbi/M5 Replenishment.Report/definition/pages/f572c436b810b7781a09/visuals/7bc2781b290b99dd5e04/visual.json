@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
   "name": "7bc2781b290b99dd5e04",
   "position": {
-    "x": 0,
-    "y": 103.15789473684211,
+    "x": 16,
+    "y": 212,
     "z": 7000,
-    "height": 616.84210526315792,
-    "width": 1280,
+    "height": 492,
+    "width": 1248,
     "tabOrder": 7000
   },
   "visual": {
@@ -23,11 +23,11 @@
                       "Entity": "dim_store"
                     }
                   },
-                  "Property": "store_id"
+                  "Property": "Store"
                 }
               },
-              "queryRef": "dim_store.store_id",
-              "nativeQueryRef": "store_id"
+              "queryRef": "dim_store.Store",
+              "nativeQueryRef": "Store"
             },
             {
               "field": {
@@ -37,11 +37,11 @@
                       "Entity": "dim_item"
                     }
                   },
-                  "Property": "item_id"
+                  "Property": "Item"
                 }
               },
-              "queryRef": "dim_item.item_id",
-              "nativeQueryRef": "item_id"
+              "queryRef": "dim_item.Item",
+              "nativeQueryRef": "Item"
             },
             {
               "field": {
@@ -51,11 +51,25 @@
                       "Entity": "dim_item"
                     }
                   },
-                  "Property": "dept_id"
+                  "Property": "Department"
                 }
               },
-              "queryRef": "dim_item.dept_id",
-              "nativeQueryRef": "dept_id"
+              "queryRef": "dim_item.Department",
+              "nativeQueryRef": "Department"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_replenishment_weekly"
+                    }
+                  },
+                  "Property": "Week Forecast"
+                }
+              },
+              "queryRef": "fact_replenishment_weekly.Week Forecast",
+              "nativeQueryRef": "Week Forecast"
             },
             {
               "field": {
@@ -79,11 +93,11 @@
                       "Entity": "fact_replenishment_weekly"
                     }
                   },
-                  "Property": "Week Forecast"
+                  "Property": "Inventory Position"
                 }
               },
-              "queryRef": "fact_replenishment_weekly.Week Forecast",
-              "nativeQueryRef": "Week Forecast"
+              "queryRef": "fact_replenishment_weekly.Inventory Position",
+              "nativeQueryRef": "Inventory Position"
             },
             {
               "field": {
@@ -126,20 +140,6 @@
               },
               "queryRef": "fact_replenishment_weekly.Order-Up-To Level",
               "nativeQueryRef": "Order-Up-To Level"
-            },
-            {
-              "field": {
-                "Measure": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "fact_replenishment_weekly"
-                    }
-                  },
-                  "Property": "Inventory Position"
-                }
-              },
-              "queryRef": "fact_replenishment_weekly.Inventory Position",
-              "nativeQueryRef": "Inventory Position"
             },
             {
               "field": {
@@ -245,45 +245,6 @@
                   }
                 }
               }
-            },
-            "backColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Conditional": {
-                      "Cases": [
-                        {
-                          "Condition": {
-                            "Comparison": {
-                              "ComparisonKind": 0,
-                              "Left": {
-                                "Measure": {
-                                  "Expression": {
-                                    "SourceRef": {
-                                      "Entity": "fact_replenishment_weekly"
-                                    }
-                                  },
-                                  "Property": "IP Below ROP Flag"
-                                }
-                              },
-                              "Right": {
-                                "Literal": {
-                                  "Value": "1D"
-                                }
-                              }
-                            }
-                          },
-                          "Value": {
-                            "Literal": {
-                              "Value": "'#efb5b9'"
-                            }
-                          }
-                        }
-                      ]
-                    }
-                  }
-                }
-              }
             }
           },
           "selector": {
@@ -296,59 +257,6 @@
             ],
             "metadata": "fact_replenishment_weekly.Inventory Position"
           }
-        },
-        {
-          "properties": {
-            "backColor": {
-              "solid": {
-                "color": {
-                  "expr": {
-                    "Conditional": {
-                      "Cases": [
-                        {
-                          "Condition": {
-                            "Comparison": {
-                              "ComparisonKind": 0,
-                              "Left": {
-                                "Measure": {
-                                  "Expression": {
-                                    "SourceRef": {
-                                      "Entity": "fact_replenishment_weekly"
-                                    }
-                                  },
-                                  "Property": "IP Below ROP Flag"
-                                }
-                              },
-                              "Right": {
-                                "Literal": {
-                                  "Value": "1D"
-                                }
-                              }
-                            }
-                          },
-                          "Value": {
-                            "Literal": {
-                              "Value": "'#efb5b9'"
-                            }
-                          }
-                        }
-                      ]
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "selector": {
-            "data": [
-              {
-                "dataViewWildcard": {
-                  "matchingOption": 1
-                }
-              }
-            ],
-            "metadata": "fact_replenishment_weekly.Suggested Order Qty"
-          }
         }
       ]
     },
@@ -360,6 +268,51 @@
               "expr": {
                 "Literal": {
                   "Value": "'Default'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Suggested orders by item and store'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "subTitle": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_week"
+                    }
+                  },
+                  "Property": "Selected Week Label"
                 }
               }
             }

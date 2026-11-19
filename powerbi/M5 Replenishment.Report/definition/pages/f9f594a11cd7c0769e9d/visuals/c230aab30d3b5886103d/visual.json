@@ -187,6 +187,90 @@
           ]
         },
         "howCreated": "User"
+      },
+      {
+        "name": "fc79acccb65e284d364e",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_store"
+              }
+            },
+            "Property": "store_id"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "d6efe38a03471958d741",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_item"
+              }
+            },
+            "Property": "item_id"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "e4bd020060c9b33313d1",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_replenishment_weekly"
+              }
+            },
+            "Property": "Available Units"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "0d29e160d496e6c0990d",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_replenishment_weekly"
+              }
+            },
+            "Property": "Week Forecast"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "d34cfc33ee8de64b6e5a",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_replenishment_weekly"
+              }
+            },
+            "Property": "Projected Stockout Date"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "92976479ade7e4d6c6a1",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_replenishment_weekly"
+              }
+            },
+            "Property": "Projected Lost Units"
+          }
+        },
+        "type": "Advanced"
       }
     ]
   }

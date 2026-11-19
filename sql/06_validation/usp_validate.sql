@@ -290,6 +290,10 @@ BEGIN
            SUM(CAST(actual_units AS bigint)), @sim_demand
     FROM dbo.fact_replenishment_weekly
     UNION ALL
+    SELECT 'abs error milli-units: replenishment vs. forecast fact (last 52 weeks)',
+           CAST(SUM(abs_error) * 1000 AS bigint), @fc_abs_error_52_m
+    FROM dbo.fact_replenishment_weekly
+    UNION ALL
     SELECT 'fact_replenishment_weekly duplicate grain', COUNT_BIG(*), 0
     FROM (SELECT week_key, item_key, store_key FROM dbo.fact_replenishment_weekly
           GROUP BY week_key, item_key, store_key HAVING COUNT(*) > 1) AS dup

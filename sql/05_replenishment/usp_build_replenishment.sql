@@ -286,6 +286,7 @@ BEGIN
         forecast_units           decimal(12, 3) NOT NULL,
         next_forecast_units      decimal(12, 3) NOT NULL,   -- demand closing stock must cover
         actual_units             int            NOT NULL,   -- demand
+        abs_error                AS (ABS(forecast_units - actual_units)),  -- as in fact_forecast_weekly
         sell_price               decimal(10, 2) NOT NULL,
         safety_stock             decimal(12, 2) NOT NULL,
         reorder_point            decimal(12, 2) NOT NULL,   -- urgent flag; orders use order_up_to

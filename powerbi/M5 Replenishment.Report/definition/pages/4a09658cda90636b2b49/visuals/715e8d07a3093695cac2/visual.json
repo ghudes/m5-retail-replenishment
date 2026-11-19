@@ -52,5 +52,23 @@
       }
     },
     "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "b79a34b15009cdbd357e",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_forecast_weekly"
+              }
+            },
+            "Property": "WAPE"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
   }
 }

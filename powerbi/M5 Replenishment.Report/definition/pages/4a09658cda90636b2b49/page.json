@@ -1,0 +1,15 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "4a09658cda90636b2b49",
+  "displayName": "Forecast Accuracy",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280,
+  "visualInteractions": [
+    {
+      "source": "b310f0044a6b89037082",
+      "target": "7455a9f18803c50570d3",
+      "type": "DataFilter"
+    }
+  ]
+}

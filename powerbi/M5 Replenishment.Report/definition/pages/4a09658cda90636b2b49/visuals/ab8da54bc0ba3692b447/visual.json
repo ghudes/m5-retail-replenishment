@@ -1,0 +1,107 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "ab8da54bc0ba3692b447",
+  "position": {
+    "x": 683,
+    "y": 395,
+    "z": 9000,
+    "height": 325,
+    "width": 597,
+    "tabOrder": 9000
+  },
+  "visual": {
+    "visualType": "barChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_item"
+                    }
+                  },
+                  "Property": "dept_id"
+                }
+              },
+              "queryRef": "dim_item.dept_id",
+              "nativeQueryRef": "dept_id",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_forecast_weekly"
+                    }
+                  },
+                  "Property": "WAPE"
+                }
+              },
+              "queryRef": "fact_forecast_weekly.WAPE",
+              "nativeQueryRef": "WAPE"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "fact_forecast_weekly"
+                  }
+                },
+                "Property": "WAPE"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "b365eb23eb422d32e52d",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_item"
+              }
+            },
+            "Property": "dept_id"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "ddc094c3287d4349c320",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_forecast_weekly"
+              }
+            },
+            "Property": "WAPE"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

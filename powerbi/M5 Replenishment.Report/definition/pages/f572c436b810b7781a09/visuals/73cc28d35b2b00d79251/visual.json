@@ -1,0 +1,56 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "73cc28d35b2b00d79251",
+  "position": {
+    "x": 380,
+    "y": 0,
+    "z": 5000,
+    "height": 103.15789473684211,
+    "width": 260,
+    "tabOrder": 5000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_replenishment_weekly"
+                    }
+                  },
+                  "Property": "Series Below Reorder Point"
+                }
+              },
+              "queryRef": "fact_replenishment_weekly.Series Below Reorder Point",
+              "nativeQueryRef": "Series Below Reorder Point"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "fact_replenishment_weekly"
+                  }
+                },
+                "Property": "Series Below Reorder Point"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

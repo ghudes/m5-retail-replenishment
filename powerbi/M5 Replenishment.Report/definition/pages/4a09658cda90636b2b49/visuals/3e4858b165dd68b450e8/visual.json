@@ -1,0 +1,56 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "3e4858b165dd68b450e8",
+  "position": {
+    "x": 147.36842105263159,
+    "y": 0,
+    "z": 5000,
+    "height": 103.15789473684211,
+    "width": 206.31578947368422,
+    "tabOrder": 5000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_forecast_weekly"
+                    }
+                  },
+                  "Property": "Bias"
+                }
+              },
+              "queryRef": "fact_forecast_weekly.Bias",
+              "nativeQueryRef": "Bias"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "fact_forecast_weekly"
+                  }
+                },
+                "Property": "Bias"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

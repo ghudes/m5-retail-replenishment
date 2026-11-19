@@ -1,0 +1,193 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "c230aab30d3b5886103d",
+  "position": {
+    "x": 0,
+    "y": 103.15789473684211,
+    "z": 7000,
+    "height": 616.84210526315792,
+    "width": 683.15789473684208,
+    "tabOrder": 7000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_store"
+                    }
+                  },
+                  "Property": "store_id"
+                }
+              },
+              "queryRef": "dim_store.store_id",
+              "nativeQueryRef": "store_id"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_item"
+                    }
+                  },
+                  "Property": "item_id"
+                }
+              },
+              "queryRef": "dim_item.item_id",
+              "nativeQueryRef": "item_id"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_replenishment_weekly"
+                    }
+                  },
+                  "Property": "Available Units"
+                }
+              },
+              "queryRef": "fact_replenishment_weekly.Available Units",
+              "nativeQueryRef": "Available Units"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_replenishment_weekly"
+                    }
+                  },
+                  "Property": "Week Forecast"
+                }
+              },
+              "queryRef": "fact_replenishment_weekly.Week Forecast",
+              "nativeQueryRef": "Week Forecast"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_replenishment_weekly"
+                    }
+                  },
+                  "Property": "Projected Stockout Date"
+                }
+              },
+              "queryRef": "fact_replenishment_weekly.Projected Stockout Date",
+              "nativeQueryRef": "Projected Stockout Date"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_replenishment_weekly"
+                    }
+                  },
+                  "Property": "Projected Lost Units"
+                }
+              },
+              "queryRef": "fact_replenishment_weekly.Projected Lost Units",
+              "nativeQueryRef": "Projected Lost Units"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "fact_replenishment_weekly"
+                  }
+                },
+                "Property": "Projected Lost Units"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "visualContainerObjects": {
+      "stylePreset": [
+        {
+          "properties": {
+            "name": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Default'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "9cfc9867b205c630b0ca",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_replenishment_weekly"
+              }
+            },
+            "Property": "Series Projected to Stock Out"
+          }
+        },
+        "type": "Advanced",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "f",
+              "Entity": "fact_replenishment_weekly",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "Comparison": {
+                  "ComparisonKind": 1,
+                  "Left": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Source": "f"
+                        }
+                      },
+                      "Property": "Series Projected to Stock Out"
+                    }
+                  },
+                  "Right": {
+                    "Literal": {
+                      "Value": "0L"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "howCreated": "User"
+      }
+    ]
+  }
+}

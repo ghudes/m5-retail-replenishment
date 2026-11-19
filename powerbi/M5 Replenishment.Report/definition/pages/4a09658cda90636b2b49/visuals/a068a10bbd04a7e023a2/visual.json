@@ -1,0 +1,74 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "a068a10bbd04a7e023a2",
+  "position": {
+    "x": 342.10526315789474,
+    "y": 0,
+    "z": 6000,
+    "height": 103.15789473684211,
+    "width": 146.31578947368422,
+    "tabOrder": 6000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_forecast_weekly"
+                    }
+                  },
+                  "Property": "Abs Error"
+                }
+              },
+              "queryRef": "fact_forecast_weekly.Abs Error",
+              "nativeQueryRef": "Abs Error"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "fact_forecast_weekly"
+                  }
+                },
+                "Property": "Abs Error"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "fa7a3c17c4a2d6239012",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_forecast_weekly"
+              }
+            },
+            "Property": "Abs Error"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

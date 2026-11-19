@@ -1,0 +1,25 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "f9f594a11cd7c0769e9d",
+  "displayName": "Out-of-Stock Risk",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280,
+  "visualInteractions": [
+    {
+      "source": "47af7d014d99803a00d0",
+      "target": "b47d05519a5ee02307b5",
+      "type": "DataFilter"
+    },
+    {
+      "source": "b47d05519a5ee02307b5",
+      "target": "47af7d014d99803a00d0",
+      "type": "NoFilter"
+    },
+    {
+      "source": "b47d05519a5ee02307b5",
+      "target": "708f3a4a8aa010ca5809",
+      "type": "NoFilter"
+    }
+  ]
+}

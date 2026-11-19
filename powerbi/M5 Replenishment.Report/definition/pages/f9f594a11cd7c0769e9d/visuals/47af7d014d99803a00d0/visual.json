@@ -1,0 +1,135 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "47af7d014d99803a00d0",
+  "position": {
+    "x": 682.66666666666663,
+    "y": 102.64734299516908,
+    "z": 8000,
+    "height": 291.8647342995169,
+    "width": 597.33333333333337,
+    "tabOrder": 8000
+  },
+  "visual": {
+    "visualType": "clusteredColumnChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_week"
+                    }
+                  },
+                  "Property": "week_start_date"
+                }
+              },
+              "queryRef": "dim_week.week_start_date",
+              "nativeQueryRef": "week_start_date",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_replenishment_weekly"
+                    }
+                  },
+                  "Property": "Projected Lost Units"
+                }
+              },
+              "queryRef": "fact_replenishment_weekly.Projected Lost Units",
+              "nativeQueryRef": "Projected Lost Units"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_replenishment_weekly"
+                    }
+                  },
+                  "Property": "Lost Units"
+                }
+              },
+              "queryRef": "fact_replenishment_weekly.Lost Units",
+              "nativeQueryRef": "Lost Units"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "dim_week"
+                  }
+                },
+                "Property": "week_start_date"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "8c5179a19ae30050edc1",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_week"
+              }
+            },
+            "Property": "week_start_date"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "913a6610eea05c16a560",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_replenishment_weekly"
+              }
+            },
+            "Property": "Projected Lost Units"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "8ef344b16139a39a6310",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_replenishment_weekly"
+              }
+            },
+            "Property": "Lost Units"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

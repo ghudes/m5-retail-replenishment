@@ -1,0 +1,122 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "708f3a4a8aa010ca5809",
+  "position": {
+    "x": 683,
+    "y": 395,
+    "z": 9000,
+    "height": 325,
+    "width": 597,
+    "tabOrder": 9000
+  },
+  "visual": {
+    "visualType": "barChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_item"
+                    }
+                  },
+                  "Property": "cat_id"
+                }
+              },
+              "queryRef": "dim_item.cat_id",
+              "nativeQueryRef": "cat_id",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_stockout_event"
+                    }
+                  },
+                  "Property": "Est. Lost Units"
+                }
+              },
+              "queryRef": "fact_stockout_event.Est. Lost Units",
+              "nativeQueryRef": "Est. Lost Units"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "fact_stockout_event"
+                  }
+                },
+                "Property": "Est. Lost Units"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Inferred historical stockouts, 2011-2016'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "f712477ab8d06c4601e4",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_item"
+              }
+            },
+            "Property": "cat_id"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "c433990d7d8d8c4e90b0",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_stockout_event"
+              }
+            },
+            "Property": "Est. Lost Units"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

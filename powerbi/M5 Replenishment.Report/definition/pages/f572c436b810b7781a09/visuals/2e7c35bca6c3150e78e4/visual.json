@@ -1,0 +1,56 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "2e7c35bca6c3150e78e4",
+  "position": {
+    "x": 640,
+    "y": 0,
+    "z": 6000,
+    "height": 103.15789473684211,
+    "width": 171.57894736842107,
+    "tabOrder": 6000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_replenishment_weekly"
+                    }
+                  },
+                  "Property": "Days on Hand"
+                }
+              },
+              "queryRef": "fact_replenishment_weekly.Days on Hand",
+              "nativeQueryRef": "Days on Hand"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "fact_replenishment_weekly"
+                  }
+                },
+                "Property": "Days on Hand"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

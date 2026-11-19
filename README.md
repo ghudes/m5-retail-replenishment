@@ -1,6 +1,6 @@
 # Retail Replenishment Analytics — M5 (Walmart) Dataset
 
-> From forecast to order: a SQL dimensional model and replenishment decision layer built on 30,000+ item × store series, with Power BI / Tableau dashboards to follow.
+> From forecast to order: a SQL dimensional model and replenishment decision layer built on 30,000+ item × store series, with a Power BI report on top and a Tableau view to follow.
 
 **Author:** Gil Hudes · [LinkedIn](https://linkedin.com/in/ghudes) · Microsoft Certified: Power BI Data Analyst Associate (PL-300)
 
@@ -24,7 +24,7 @@ Most public dashboard portfolios stop at "sales went up." This project goes one 
 | SQL | Staging → model ETL in stored procedures, window functions, gaps-and-islands, set-based week-by-week simulation |
 | Forecasting | A rolling one-week-ahead 4-week moving average, scored on WAPE and bias, with a top-error-contributors view |
 | Replenishment logic | Days on hand, safety stock, reorder point, suggested order qty, projected stockout date, lost units; a 52-week inventory simulation showing what forecast error costs in stock and lost sales |
-| Power BI *(planned)* | Semantic model, DAX measures, row-level security by state |
+| Power BI | Semantic model, DAX measures, row-level security by state |
 | Tableau *(planned)* | Public version of the out-of-stock risk view |
 | Data quality | Row counts, duplicate-grain, orphan-key, and total reconciliation checks from raw files to every model table; the build stops if any fails |
 
@@ -59,7 +59,7 @@ Raw files are **not** committed. Run `data/download.md` instructions to fetch th
 
 ## 4. Architecture
 
-**Platform:** SQL Server 2025 Express (free) → Power BI Desktop. All transformation logic is T-SQL in stored procedures; Power BI (planned) imports the finished `dim_*` and `fact_*` tables.
+**Platform:** SQL Server 2025 Express (free) → Power BI Desktop. All transformation logic is T-SQL in stored procedures; Power BI imports the finished weekly `dim_*` and `fact_*` tables it needs (see section 9).
 
 ```
 Raw CSVs ─► stg.usp_load_staging ─► dbo.usp_build_dimensions ─► dbo.usp_build_sales_facts
@@ -70,7 +70,7 @@ Raw CSVs ─► stg.usp_load_staging ─► dbo.usp_build_dimensions ─► dbo.
                                dbo.usp_build_forecast_accuracy           (historical, from daily sales)
                                           │
                                           ▼
-                               dbo.usp_build_replenishment ─► dbo.usp_validate ─► Power BI (planned)
+                               dbo.usp_build_replenishment ─► dbo.usp_validate ─► Power BI
                                (52-week inventory simulation)
 ```
 
@@ -198,9 +198,11 @@ erDiagram
     }
 ```
 
+This is the full schema in SQL Server. Power BI imports only the weekly part: `dim_item`, `dim_store`, `dim_week`, and the forecast, replenishment, and stockout facts, all joined at the week grain (section 9). `dim_date` and `fact_sales_daily` stay in SQL Server.
+
 ### Modeling decisions
 
-- **Two grains.** `fact_sales_daily` (59.2M rows) stays in SQL Server for stockout inference. Power BI reads the weekly facts (~8.5M rows) so the model stays fast.
+- **Two grains.** `fact_sales_daily` (59.2M rows) stays in SQL Server for stockout inference. Power BI imports the weekly forecast and replenishment facts (8.1M rows together) and the stockout events, so the model stays fast.
 - **Weekly grain uses Walmart's `wm_yr_wk`** because prices are published at that grain.
 - **SNAP flags live on `dim_date`** as one column per state (`snap_ca`, `snap_tx`, `snap_wi`).
 - **Loading a 1,947-column file into SQL Server.** Tables max out at 1,024 columns, so each sales line is bulk-loaded as a single text value and unpivoted with `STRING_SPLIT(line, ',', 1)`. The ordinal identifies each value: positions 1–6 are ID fields, position *n* is day `d_(n−6)`. No wide table, no external tool.
@@ -343,18 +345,20 @@ It's deliberately simple. The project's focus is what comes after the forecast: 
 
 ## 9. Dashboards
 
-*Planned; not built yet. The tables they read (`fact_replenishment_weekly`, `fact_forecast_weekly`, `forecast_top_errors`, `fact_stockout_event`) are in place.*
-
 ### Power BI
+
+A Power BI Desktop project in [`powerbi/`](powerbi/), saved in PBIP format so the model and report are text files that diff in git. It imports from the database the build creates. The server and database name are model parameters (Transform data → Edit parameters), so nothing in the file is machine-specific.
+
+**Model.** `dim_item`, `dim_store`, `dim_week`, `fact_forecast_weekly`, `fact_replenishment_weekly`, and `fact_stockout_event`. Every fact joins to `dim_week` on `week_key`; a stockout event joins on the week its zero-sale run starts (`start_week_key`). There is no daily date table, so auto date/time is off and dates show at week grain.
+
 | Page | Purpose |
 |---|---|
-| Suggested Order | Items to order this week, quantity, days on hand, by store |
-| Out-of-Stock Risk | Projected stockouts and lost units by item, store, state |
-| Forecast Accuracy | WAPE / bias trend, top error contributors |
+| Suggested Order | Items to order in the selected week: quantity, inventory position against reorder point, days on hand, by store |
+| Out-of-Stock Risk | Projected stockouts and lost units by item, store, state; inferred historical stockouts by category |
+| Forecast Accuracy | WAPE / bias trend by week and department; top error contributors (share of absolute error, in DAX from `fact_forecast_weekly`) |
 
-- RLS by `state_id` (CA / TX / WI roles)
+- RLS: CA, TX, and WI roles filter `dim_store[state_id]`, and the filter flows to every fact
 - Screenshots: TODO
-- `.pbix` file: TODO
 
 ### Tableau Public
 - Out-of-Stock Risk view: TODO (link)
@@ -401,7 +405,7 @@ Full build time on SQL Server 2025 Express: about 37 minutes, most of it the sta
 │   ├── 05_replenishment/    # stockout inference, inventory simulation
 │   ├── 06_validation/       # dbo.usp_validate
 │   └── 99_orchestration/    # dbo.usp_build_all
-├── powerbi/                 # planned: replenishment.pbix
+├── powerbi/                 # Power BI project (PBIP): semantic model and report
 ├── tableau/                 # planned: link to the Tableau Public view
 └── docs/                    # planned: screenshots
 ```

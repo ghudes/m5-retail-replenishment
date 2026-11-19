@@ -1,0 +1,110 @@
+/// Rolling one-week-ahead 4-week moving average vs. actual, week x item x store.
+/// Measures here reproduce dbo.forecast_accuracy, but respond to slicers and RLS.
+table fact_forecast_weekly
+	lineageTag: def2e618-0da3-49fc-a14e-f73ec9937270
+
+	/// Units sold in the forecast weeks.
+	measure 'Actual Units' = SUM(fact_forecast_weekly[actual_units])
+		formatString: #,0
+		displayFolder: Forecast
+		lineageTag: 31101445-98f6-48ee-b801-2d63063724a4
+
+	measure 'Forecast Units' = SUM(fact_forecast_weekly[forecast_units])
+		formatString: #,0
+		displayFolder: Forecast
+		lineageTag: bf026149-0023-4d1e-9776-e41697a7d90a
+
+	/// Sum of |forecast - actual| at item x store x week.
+	measure 'Abs Error' = SUM(fact_forecast_weekly[abs_error])
+		formatString: #,0
+		displayFolder: Forecast
+		lineageTag: ac2acff2-20dd-4ed9-8d22-7ef9b2db32b3
+
+	/// Sum of |forecast - actual| / sum of actual. Primary accuracy metric.
+	measure WAPE = DIVIDE([Abs Error], [Actual Units])
+		formatString: 0.0%
+		displayFolder: Forecast
+		lineageTag: 0acbf232-9b3f-44f1-9fad-16271a4d1598
+
+	/// (forecast - actual) / actual. Positive = over-forecast, negative = under-forecast.
+	measure Bias = DIVIDE([Forecast Units] - [Actual Units], [Actual Units])
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Forecast
+		lineageTag: 30efbc3d-9e1f-4312-b0e2-319d171394f7
+
+	/// This row's share of all absolute error in the current slicer selection.
+	/// ALLSELECTED drops the visual's own item and store grouping but keeps slicers and RLS.
+	measure 'Share of Abs Error' =
+			DIVIDE(
+			    [Abs Error],
+			    CALCULATE([Abs Error], ALLSELECTED(dim_item), ALLSELECTED(dim_store))
+			)
+		formatString: 0.00%
+		displayFolder: Forecast
+		lineageTag: 6affe9e2-d4c5-4a6f-8368-c8a9d168f50f
+
+	column week_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 41df9581-7c51-4eb0-ab0f-b8600751e523
+		summarizeBy: none
+		sourceColumn: week_key
+
+	column item_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e777a66a-59d9-40f4-bc44-9049c927f00c
+		summarizeBy: none
+		sourceColumn: item_key
+
+	column store_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 2572542c-426f-40bf-91b2-eb1576872831
+		summarizeBy: none
+		sourceColumn: store_key
+
+	column forecast_units
+		dataType: double
+		isHidden
+		lineageTag: cd9b526b-b1e2-4899-9f63-4733f17dc1b9
+		summarizeBy: sum
+		sourceColumn: forecast_units
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column actual_units
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: d11cd9c8-93a4-468f-a1ff-f742b63bf0ab
+		summarizeBy: none
+		sourceColumn: actual_units
+
+	column abs_error
+		dataType: double
+		isHidden
+		lineageTag: 1e818708-a75c-4a5a-9b0a-6924a670647b
+		summarizeBy: sum
+		sourceColumn: abs_error
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition fact_forecast_weekly = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(Server, Database),
+				    fact = Source{[Schema = "dbo", Item = "fact_forecast_weekly"]}[Data],
+				    Kept = Table.SelectColumns(fact,
+				        {"week_key", "item_key", "store_key", "forecast_units", "actual_units", "abs_error"})
+				in
+				    Kept
+

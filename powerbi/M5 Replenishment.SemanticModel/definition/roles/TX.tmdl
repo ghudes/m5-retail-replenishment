@@ -1,0 +1,8 @@
+/// Sees only TX stores. Filters dim_store; the filter flows to every fact.
+role TX
+	modelPermission: read
+
+	tablePermission dim_store = [state_id] = "TX"
+
+	annotation PBI_Id = ee3c52e874cb4679b53bc2b12182fb75
+

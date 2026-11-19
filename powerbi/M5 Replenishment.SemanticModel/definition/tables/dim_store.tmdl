@@ -1,0 +1,33 @@
+/// One row per store. RLS roles filter this table by state_id.
+table dim_store
+	lineageTag: d689e0d9-6e39-4e93-811c-9da5d8768149
+
+	column store_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 753af4be-88e3-403e-811d-e64057d23b85
+		summarizeBy: none
+		sourceColumn: store_key
+
+	column store_id
+		dataType: string
+		lineageTag: 26b22fd8-2c7e-448f-b24f-d2c0589b9dad
+		summarizeBy: none
+		sourceColumn: store_id
+
+	column state_id
+		dataType: string
+		lineageTag: a40a76b5-97ec-423e-a176-893ae11a88d1
+		summarizeBy: none
+		sourceColumn: state_id
+
+	partition dim_store = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(Server, Database),
+				    dim_store = Source{[Schema = "dbo", Item = "dim_store"]}[Data]
+				in
+				    dim_store
+

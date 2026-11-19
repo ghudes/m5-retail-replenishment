@@ -1,0 +1,8 @@
+/// Sees only CA stores. Filters dim_store; the filter flows to every fact.
+role CA
+	modelPermission: read
+
+	tablePermission dim_store = [state_id] = "CA"
+
+	annotation PBI_Id = 266f6b598c484fa39ec0b74911bffc7f
+

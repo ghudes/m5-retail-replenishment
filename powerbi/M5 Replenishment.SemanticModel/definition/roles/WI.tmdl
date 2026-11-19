@@ -1,0 +1,8 @@
+/// Sees only WI stores. Filters dim_store; the filter flows to every fact.
+role WI
+	modelPermission: read
+
+	tablePermission dim_store = [state_id] = "WI"
+
+	annotation PBI_Id = a32b976a742f43759a54defd52f8e1ba
+

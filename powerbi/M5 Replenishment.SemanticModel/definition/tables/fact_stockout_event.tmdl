@@ -1,0 +1,139 @@
+/// Historical stockouts inferred from zero-sale runs (dbo.usp_build_stockouts, alpha = 1%).
+/// One row per run, sliced by the week it starts in (start_week_key).
+table fact_stockout_event
+	lineageTag: 58bdae38-70e4-411c-a233-22054244ee16
+
+	/// Runs of N to 28 zero-sale days: too long to be chance for the series' sales rate.
+	measure 'Stockout Events' =
+			CALCULATE(
+			    COUNTROWS(fact_stockout_event),
+			    fact_stockout_event[event_type] = "stockout"
+			)
+		formatString: #,0
+		displayFolder: Historical Stockouts
+		lineageTag: 9268dc74-9e5f-4c7c-9852-bd8517f868ef
+
+	measure 'Stockout Days' =
+			CALCULATE(
+			    SUM(fact_stockout_event[zero_sale_days]),
+			    fact_stockout_event[event_type] = "stockout"
+			)
+		formatString: #,0
+		displayFolder: Historical Stockouts
+		lineageTag: 23a9e9fd-36e0-447e-92c8-742ed1665f35
+
+	/// Stockout days x the series' average daily sales while on the shelf.
+	/// Extended absences have no estimate, so they add nothing here.
+	measure 'Est. Lost Units' = SUM(fact_stockout_event[est_lost_units])
+		formatString: #,0
+		displayFolder: Historical Stockouts
+		lineageTag: bcf8edb2-9b5f-4d09-bebe-cf5d471cae12
+
+	measure 'Est. Lost Revenue' = SUM(fact_stockout_event[est_lost_revenue])
+		formatString: $#,0
+		displayFolder: Historical Stockouts
+		lineageTag: c518caeb-225f-4196-818f-85159b075102
+
+	/// Improbable zero-sale runs over 28 days: an assortment gap, not a missed delivery.
+	measure 'Extended Absences' =
+			CALCULATE(
+			    COUNTROWS(fact_stockout_event),
+			    fact_stockout_event[event_type] = "extended_absence"
+			)
+		formatString: #,0
+		displayFolder: Historical Stockouts
+		lineageTag: 1863a43e-a239-431f-b551-064a50accf0e
+
+	column item_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: add88919-530c-486c-96e1-f58dc44e4078
+		summarizeBy: none
+		sourceColumn: item_key
+
+	column store_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 2a26d418-d7e5-46ed-bc61-9f1a61a14125
+		summarizeBy: none
+		sourceColumn: store_key
+
+	column start_date_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 579c15bf-0181-4dc7-817d-409127883903
+		summarizeBy: none
+		sourceColumn: start_date_key
+
+	column end_date_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 69099ce5-1bdb-47b8-8723-10bf71b482d0
+		summarizeBy: none
+		sourceColumn: end_date_key
+
+	/// stockout | extended_absence
+	column event_type
+		dataType: string
+		lineageTag: 1f6b3c95-206c-4f95-8889-52c9b64cadb7
+		summarizeBy: none
+		sourceColumn: event_type
+
+	column zero_sale_days
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: fd287daf-6d07-41ec-a55f-66399532dc1e
+		summarizeBy: none
+		sourceColumn: zero_sale_days
+
+	column est_lost_units
+		dataType: double
+		isHidden
+		lineageTag: 1b3a1883-fd85-4a54-99c8-21514714a977
+		summarizeBy: sum
+		sourceColumn: est_lost_units
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column est_lost_revenue
+		dataType: double
+		isHidden
+		lineageTag: 1e30c1ee-38e8-44bd-a7d8-4244a8e82cb6
+		summarizeBy: sum
+		sourceColumn: est_lost_revenue
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// True when the run reaches the last sales day, so its end isn't known.
+	column is_open
+		dataType: boolean
+		lineageTag: 73bc1c14-bd95-46c3-b05a-a7c1ee3d960e
+		summarizeBy: none
+		sourceColumn: is_open
+
+	column start_week_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 2c44aa91-1346-4a58-a4e2-f9507fc991e2
+		summarizeBy: none
+		sourceColumn: start_week_key
+
+	partition fact_stockout_event = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(Server, Database),
+				    fact_stockout_event = Source{[Schema = "dbo", Item = "fact_stockout_event"]}[Data]
+				in
+				    fact_stockout_event
+

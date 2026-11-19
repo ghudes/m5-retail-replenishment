@@ -1,0 +1,52 @@
+/// One row per Walmart week (wm_yr_wk). Slices all three facts.
+table dim_week
+	lineageTag: 4483c8c7-4bf5-4e9e-92a5-5efb8ccc8684
+
+	column week_key
+		dataType: int64
+		formatString: 0
+		lineageTag: fc6dd9bc-cd06-4ae9-b196-215a87452164
+		summarizeBy: none
+		sourceColumn: week_key
+
+	column week_start_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 9aff1525-fa16-496a-98cd-bdc90e35c844
+		summarizeBy: none
+		sourceColumn: week_start_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column week_end_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 64563208-14ba-41bf-87bc-a6c682b80e50
+		summarizeBy: none
+		sourceColumn: week_end_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column fiscal_year
+		dataType: int64
+		formatString: 0
+		lineageTag: a81f4a8d-781e-4bd2-a880-d2a66349bc2a
+		summarizeBy: none
+		sourceColumn: fiscal_year
+
+	column week_of_year
+		dataType: int64
+		formatString: 0
+		lineageTag: b6515859-6fb7-4cf3-982f-d804b7056445
+		summarizeBy: none
+		sourceColumn: week_of_year
+
+	partition dim_week = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(Server, Database),
+				    dim_week = Source{[Schema = "dbo", Item = "dim_week"]}[Data]
+				in
+				    dim_week
+

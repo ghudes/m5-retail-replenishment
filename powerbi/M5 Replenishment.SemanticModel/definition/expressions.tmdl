@@ -1,0 +1,12 @@
+/// SQL Server instance the model imports from. Change it in Transform data > Edit parameters.
+expression Server = "localhost\SQLEXPRESS" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 11fa086b-cff1-4c5e-b0ff-e731e61a8e2d
+
+	annotation PBI_ResultType = Text
+
+/// Database built by build.cmd.
+expression Database = "M5" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 98a0b8c1-f4cf-4997-b11a-59a24df1be95
+
+	annotation PBI_ResultType = Text
+

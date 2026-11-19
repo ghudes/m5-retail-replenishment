@@ -1,0 +1,36 @@
+relationship 7ed0bb52-0d36-47c0-99ac-c42a1acc46e3
+	fromColumn: fact_forecast_weekly.week_key
+	toColumn: dim_week.week_key
+
+relationship 828d20e6-e468-4687-9c08-e91145125a72
+	fromColumn: fact_forecast_weekly.item_key
+	toColumn: dim_item.item_key
+
+relationship 629d2d70-3d66-4333-9653-affd1a12af92
+	fromColumn: fact_forecast_weekly.store_key
+	toColumn: dim_store.store_key
+
+relationship 222f6bfa-03d0-407b-a8b7-5ee6ddc279c4
+	fromColumn: fact_replenishment_weekly.week_key
+	toColumn: dim_week.week_key
+
+relationship 8f539279-46bd-47eb-98c5-ec67607e3d64
+	fromColumn: fact_replenishment_weekly.item_key
+	toColumn: dim_item.item_key
+
+relationship 99012097-41c2-4b15-83eb-6f47e9af2738
+	fromColumn: fact_replenishment_weekly.store_key
+	toColumn: dim_store.store_key
+
+relationship a367d466-1ce6-450b-82bb-bb5debf5dc06
+	fromColumn: fact_stockout_event.item_key
+	toColumn: dim_item.item_key
+
+relationship 184617c4-8975-42a3-ac08-e7cdb74c8ead
+	fromColumn: fact_stockout_event.store_key
+	toColumn: dim_store.store_key
+
+relationship 014ee293-895e-45aa-8dc4-f10db5bbdd60
+	fromColumn: fact_stockout_event.start_week_key
+	toColumn: dim_week.week_key
+

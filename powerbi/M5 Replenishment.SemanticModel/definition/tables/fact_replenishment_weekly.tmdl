@@ -1,0 +1,368 @@
+/// 52-week inventory simulation, week x item x store, from dbo.usp_build_replenishment.
+/// Over the full 52 weeks and all stores, the measures here reproduce dbo.replenishment_summary.
+table fact_replenishment_weekly
+	lineageTag: 69a4e510-c207-4316-9878-0f93be06e140
+
+	/// Number of item x store x week rows in the selection.
+	measure Series-Weeks = COUNTROWS(fact_replenishment_weekly)
+		formatString: #,0
+		displayFolder: Replenishment
+		lineageTag: 304d6502-7920-452e-99ba-91e337d21bbb
+
+	/// M5 actual units: the demand the simulation sells against.
+	measure 'Demand Units' = SUM(fact_replenishment_weekly[actual_units])
+		formatString: #,0
+		displayFolder: Replenishment
+		lineageTag: 994b4aad-a7cd-4975-a4c4-28a2247925a9
+
+	measure 'Units Sold' = SUM(fact_replenishment_weekly[units_sold])
+		formatString: #,0
+		displayFolder: Replenishment
+		lineageTag: 587d0fc8-baa8-4dd3-941e-4c19f13dc9c3
+
+	/// Simulated lost sales: demand that found the shelf empty. What actually happened.
+	measure 'Lost Units' = SUM(fact_replenishment_weekly[lost_units])
+		formatString: #,0
+		displayFolder: Replenishment
+		lineageTag: 3ded3d47-764d-42e4-a80f-c2b9eadb7036
+
+	/// Forecast not covered by available stock. What the planner saw at review time.
+	measure 'Projected Lost Units' = SUM(fact_replenishment_weekly[projected_lost_units])
+		formatString: #,0
+		displayFolder: Replenishment
+		lineageTag: d86fea58-09f2-4fe4-89c2-d54a75c1567a
+
+	/// Lost units at each week's sell price.
+	measure 'Lost Revenue' =
+			SUMX(
+			    fact_replenishment_weekly,
+			    fact_replenishment_weekly[lost_units] * fact_replenishment_weekly[sell_price]
+			)
+		formatString: $#,0
+		displayFolder: Replenishment
+		lineageTag: 4fc241a6-d973-47dc-a264-3a39fa99f8c9
+
+	/// Units sold / demand.
+	measure 'Fill Rate' = DIVIDE([Units Sold], [Demand Units])
+		formatString: 0.0%
+		displayFolder: Replenishment
+		lineageTag: 3c712ca9-4ae7-4b5c-b3ec-027b200d8931
+
+	/// Series-weeks that lost at least one unit.
+	measure 'Stockout Weeks' =
+			CALCULATE(
+			    COUNTROWS(fact_replenishment_weekly),
+			    fact_replenishment_weekly[lost_units] > 0
+			)
+		formatString: #,0
+		displayFolder: Replenishment
+		lineageTag: 775b67af-f4bb-4442-9a15-f8d379674d3f
+
+	/// Share of series-weeks with a stockout. z = 1.65 targets 5%.
+	measure 'Stockout Week Rate' = DIVIDE([Stockout Weeks], [Series-Weeks])
+		formatString: 0.00%
+		displayFolder: Replenishment
+		lineageTag: eb7fbf7d-5340-412b-a612-0d66672f7e8e
+
+	/// Units to order at this week's review: up to the order-up-to level.
+	measure 'Suggested Order Qty' = SUM(fact_replenishment_weekly[suggested_order_qty])
+		formatString: #,0
+		displayFolder: Replenishment
+		lineageTag: 609f3efb-ff16-4e4c-a518-66b6fe7614b0
+
+	/// Item x store rows with an order this week.
+	measure 'Series to Order' =
+			CALCULATE(
+			    COUNTROWS(fact_replenishment_weekly),
+			    fact_replenishment_weekly[suggested_order_qty] > 0
+			)
+		formatString: #,0
+		displayFolder: Replenishment
+		lineageTag: 8aa4519f-23e3-41b1-ad53-96fb2fac850d
+
+	/// Average weekly closing stock: total closing stock / number of weeks.
+	/// Over one week, it's that week's closing stock.
+	measure 'On Hand Units' =
+			DIVIDE(
+			    SUM(fact_replenishment_weekly[on_hand_end]),
+			    DISTINCTCOUNT(fact_replenishment_weekly[week_key])
+			)
+		formatString: #,0
+		displayFolder: Replenishment
+		lineageTag: f7f34870-e141-469d-b03f-e9fa3f7bb1ef
+
+	/// Same as On Hand Units, valued at sell price.
+	measure 'On Hand Value' =
+			DIVIDE(
+			    SUMX(
+			        fact_replenishment_weekly,
+			        fact_replenishment_weekly[on_hand_end] * fact_replenishment_weekly[sell_price]
+			    ),
+			    DISTINCTCOUNT(fact_replenishment_weekly[week_key])
+			)
+		formatString: $#,0
+		displayFolder: Replenishment
+		lineageTag: 4e41c2f9-c6a1-4358-95cd-d9d501c1b114
+
+	/// Closing stock / next week's forecast daily demand: how many days the stock lasts.
+	measure 'Days on Hand' =
+			DIVIDE(
+			    SUM(fact_replenishment_weekly[on_hand_end]),
+			    SUM(fact_replenishment_weekly[next_forecast_units]) / 7
+			)
+		formatString: 0.0
+		displayFolder: Replenishment
+		lineageTag: 368942a9-f6bb-451c-b4ff-7c6341e487c9
+
+	/// This week's forecast, as the simulation used it.
+	measure 'Week Forecast' = SUM(fact_replenishment_weekly[forecast_units])
+		formatString: #,0.0
+		displayFolder: Replenishment
+		lineageTag: b20af7f4-a1da-41c2-a2ae-e838d3c8767f
+
+	/// On hand after this week's delivery, before sales.
+	measure 'Available Units' = SUM(fact_replenishment_weekly[available_units])
+		formatString: #,0
+		displayFolder: Replenishment
+		lineageTag: 4d673402-9b08-4285-b285-61b2343afd8a
+
+	/// Available + on order. The order brings this up to the order-up-to level.
+	measure 'Inventory Position' = SUM(fact_replenishment_weekly[inventory_position])
+		formatString: #,0
+		displayFolder: Replenishment
+		lineageTag: 278a7fe4-0455-4f66-8433-44e8df432e03
+
+	/// Read for one week at a time: summing safety stock across weeks has no meaning.
+	measure 'Safety Stock' = SUM(fact_replenishment_weekly[safety_stock])
+		formatString: #,0.0
+		displayFolder: Replenishment
+		lineageTag: 4337f09b-3a0a-4015-a4fa-f697aa978498
+
+	/// Read for one week at a time. Forecast x lead time + safety stock.
+	measure 'Reorder Point' = SUM(fact_replenishment_weekly[reorder_point])
+		formatString: #,0.0
+		displayFolder: Replenishment
+		lineageTag: 0b0bf299-2f57-4144-aabc-ae48cf3f65ef
+
+	/// Read for one week at a time. Forecast x (lead time + review period) + safety stock.
+	measure 'Order-Up-To Level' = SUM(fact_replenishment_weekly[order_up_to])
+		formatString: #,0.0
+		displayFolder: Replenishment
+		lineageTag: c4e23a62-5e24-4960-aedd-c1c8f6356737
+
+	/// Earliest day stock runs out at the forecast rate, before the next delivery.
+	measure 'Projected Stockout Date' = MIN(fact_replenishment_weekly[projected_stockout_date])
+		formatString: yyyy-mm-dd
+		displayFolder: Replenishment
+		lineageTag: 2d0e149d-3d12-403b-93b3-57ed87d52948
+
+	/// Item x store rows whose forecast exceeds available stock this week.
+	measure 'Series Projected to Stock Out' =
+			CALCULATE(
+			    COUNTROWS(fact_replenishment_weekly),
+			    NOT ISBLANK(fact_replenishment_weekly[projected_stockout_date])
+			)
+		formatString: #,0
+		displayFolder: Replenishment
+		lineageTag: 8edf31ae-7072-45db-aa15-bad3efbfcf9c
+
+	/// Item x store rows whose inventory position is below the reorder point:
+	/// stock that won't last until an order placed today arrives.
+	measure 'Series Below Reorder Point' =
+			COUNTROWS(
+			    FILTER(
+			        fact_replenishment_weekly,
+			        fact_replenishment_weekly[inventory_position] < fact_replenishment_weekly[reorder_point]
+			    )
+			)
+		formatString: #,0
+		displayFolder: Replenishment
+		lineageTag: eee2e1a1-ba0d-42fd-ab47-d3895cbec8f7
+
+	measure 'IP Below ROP Flag' = IF([Inventory Position] < [Reorder Point], 1)
+		formatString: 0
+		displayFolder: Replenishment
+		lineageTag: a369d353-7872-4d6e-ab7e-293efe58da22
+
+	column week_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 65c87406-49dc-4a07-a366-41b260b7a8b7
+		summarizeBy: none
+		sourceColumn: week_key
+
+	column item_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 19daa3c4-517f-46ef-83e1-aea5254dbb39
+		summarizeBy: none
+		sourceColumn: item_key
+
+	column store_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: cffa8563-9b5c-4829-b47a-8193ff2f6f95
+		summarizeBy: none
+		sourceColumn: store_key
+
+	column forecast_units
+		dataType: double
+		isHidden
+		lineageTag: 59001720-96bb-4579-b1f2-4f3a0078b7fd
+		summarizeBy: sum
+		sourceColumn: forecast_units
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column next_forecast_units
+		dataType: double
+		isHidden
+		lineageTag: 5a88d434-6f1b-4c11-8ff3-f9f1a0b7dd3e
+		summarizeBy: sum
+		sourceColumn: next_forecast_units
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column actual_units
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: d0d482f6-2027-43c9-814f-36d742a2b35b
+		summarizeBy: none
+		sourceColumn: actual_units
+
+	column sell_price
+		dataType: double
+		isHidden
+		lineageTag: aa5b9d46-0a7d-4df7-9bcc-80e83ed5810a
+		summarizeBy: sum
+		sourceColumn: sell_price
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column safety_stock
+		dataType: double
+		isHidden
+		lineageTag: fecaad9d-f807-4e96-9a55-d624c5aad64c
+		summarizeBy: sum
+		sourceColumn: safety_stock
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column reorder_point
+		dataType: double
+		isHidden
+		lineageTag: e31f43cc-1f4d-4abc-8900-f85725034a00
+		summarizeBy: sum
+		sourceColumn: reorder_point
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column order_up_to
+		dataType: double
+		isHidden
+		lineageTag: 0cf88d21-ea73-4eec-8a8a-42a6f06c8849
+		summarizeBy: sum
+		sourceColumn: order_up_to
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column available_units
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 493cff96-3d6b-4a82-a6fe-029cf54c2566
+		summarizeBy: none
+		sourceColumn: available_units
+
+	column inventory_position
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: a6deb37d-42e6-4353-90b5-80ef41702053
+		summarizeBy: none
+		sourceColumn: inventory_position
+
+	column suggested_order_qty
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 050a15ab-98a9-4e8e-95e6-1deffa9b35d2
+		summarizeBy: none
+		sourceColumn: suggested_order_qty
+
+	column units_sold
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 6b039b4f-6b2b-4228-a7d3-17f7666fc578
+		summarizeBy: none
+		sourceColumn: units_sold
+
+	column lost_units
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: e90892bf-83ee-4026-ad9d-d66484946b6b
+		summarizeBy: none
+		sourceColumn: lost_units
+
+	column on_hand_end
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: a55f01b4-523a-4020-95e6-cdd9794b3456
+		summarizeBy: none
+		sourceColumn: on_hand_end
+
+	column projected_stockout_date
+		dataType: dateTime
+		isHidden
+		formatString: yyyy-mm-dd
+		lineageTag: 9467dd7a-0695-4fc7-91b5-5c4fd06b1479
+		summarizeBy: none
+		sourceColumn: projected_stockout_date
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column projected_lost_units
+		dataType: double
+		isHidden
+		lineageTag: bad91ead-8954-4be2-b0a8-ce42725a05a1
+		summarizeBy: sum
+		sourceColumn: projected_lost_units
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition fact_replenishment_weekly = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(Server, Database),
+				    fact = Source{[Schema = "dbo", Item = "fact_replenishment_weekly"]}[Data],
+				    Kept = Table.SelectColumns(fact,
+				        {"week_key", "item_key", "store_key", "forecast_units", "next_forecast_units",
+				         "actual_units", "sell_price", "safety_stock", "reorder_point", "order_up_to",
+				         "available_units", "inventory_position", "suggested_order_qty",
+				         "units_sold", "lost_units", "on_hand_end",
+				         "projected_stockout_date", "projected_lost_units"})
+				in
+				    Kept
+

@@ -39,13 +39,13 @@
                 "Measure": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "fact_forecast_weekly"
+                      "Entity": "fact_replenishment_weekly"
                     }
                   },
                   "Property": "WAPE"
                 }
               },
-              "queryRef": "fact_forecast_weekly.WAPE",
+              "queryRef": "fact_replenishment_weekly.WAPE",
               "nativeQueryRef": "WAPE"
             },
             {
@@ -53,13 +53,13 @@
                 "Measure": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "fact_forecast_weekly"
+                      "Entity": "fact_replenishment_weekly"
                     }
                   },
                   "Property": "Bias"
                 }
               },
-              "queryRef": "fact_forecast_weekly.Bias",
+              "queryRef": "fact_replenishment_weekly.Bias",
               "nativeQueryRef": "Bias"
             }
           ]

@@ -1,5 +1,6 @@
 /// 52-week inventory simulation, week x item x store, from dbo.usp_build_replenishment.
 /// Over the full 52 weeks and all stores, the measures here reproduce dbo.replenishment_summary.
+/// Forecast accuracy (WAPE, bias) is measured here too, over the same 52 weeks.
 table fact_replenishment_weekly
 	lineageTag: 69a4e510-c207-4316-9878-0f93be06e140
 
@@ -184,6 +185,35 @@ table fact_replenishment_weekly
 		displayFolder: Replenishment
 		lineageTag: a369d353-7872-4d6e-ab7e-293efe58da22
 
+	/// Sum of |forecast - actual| at item x store x week.
+	measure 'Abs Error' = SUM(fact_replenishment_weekly[abs_error])
+		formatString: #,0
+		displayFolder: Forecast
+		lineageTag: ac2acff2-20dd-4ed9-8d22-7ef9b2db32b3
+
+	/// Sum of |forecast - actual| / sum of actual. Primary accuracy metric.
+	measure WAPE = DIVIDE([Abs Error], [Demand Units])
+		formatString: 0.0%
+		displayFolder: Forecast
+		lineageTag: 0acbf232-9b3f-44f1-9fad-16271a4d1598
+
+	/// (forecast - actual) / actual. Positive = over-forecast, negative = under-forecast.
+	measure Bias = DIVIDE([Week Forecast] - [Demand Units], [Demand Units])
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Forecast
+		lineageTag: 30efbc3d-9e1f-4312-b0e2-319d171394f7
+
+	/// This row's share of all absolute error in the current slicer selection.
+	/// ALLSELECTED drops the visual's own item and store grouping but keeps slicers and RLS.
+	measure 'Share of Abs Error' =
+			DIVIDE(
+			    [Abs Error],
+			    CALCULATE([Abs Error], ALLSELECTED(dim_item), ALLSELECTED(dim_store))
+			)
+		formatString: 0.00%
+		displayFolder: Forecast
+		lineageTag: 6affe9e2-d4c5-4a6f-8368-c8a9d168f50f
+
 	column week_key
 		dataType: int64
 		isHidden
@@ -351,6 +381,13 @@ table fact_replenishment_weekly
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
+	column abs_error
+		dataType: double
+		isHidden
+		lineageTag: 601da732-d2ab-4671-9579-ff4d8e92d721
+		summarizeBy: none
+		sourceColumn: abs_error
+
 	partition fact_replenishment_weekly = m
 		mode: import
 		source =
@@ -359,7 +396,7 @@ table fact_replenishment_weekly
 				    fact = Source{[Schema = "dbo", Item = "fact_replenishment_weekly"]}[Data],
 				    Kept = Table.SelectColumns(fact,
 				        {"week_key", "item_key", "store_key", "forecast_units", "next_forecast_units",
-				         "actual_units", "sell_price", "safety_stock", "reorder_point", "order_up_to",
+				         "actual_units", "abs_error", "sell_price", "safety_stock", "reorder_point", "order_up_to",
 				         "available_units", "inventory_position", "suggested_order_qty",
 				         "units_sold", "lost_units", "on_hand_end",
 				         "projected_stockout_date", "projected_lost_units"})

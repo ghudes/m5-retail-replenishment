@@ -10,12 +10,11 @@ annotation __PBI_TimeIntelligenceEnabled = 0
 
 annotation PBI_ProTooling = ["DevMode"]
 
-annotation PBI_QueryOrder = ["dim_item","dim_store","dim_week","fact_forecast_weekly","fact_replenishment_weekly","fact_stockout_event","Server","Database"]
+annotation PBI_QueryOrder = ["dim_item","dim_store","dim_week","fact_replenishment_weekly","fact_stockout_event","Server","Database"]
 
 ref table dim_item
 ref table dim_store
 ref table dim_week
-ref table fact_forecast_weekly
 ref table fact_replenishment_weekly
 ref table fact_stockout_event
 

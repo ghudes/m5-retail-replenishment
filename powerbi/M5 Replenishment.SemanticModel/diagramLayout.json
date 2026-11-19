@@ -10,19 +10,6 @@
       "nodes": [
         {
           "location": {
-            "x": 430.80992118171537,
-            "y": 208.77334834147996
-          },
-          "nodeIndex": "fact_forecast_weekly",
-          "nodeLineageTag": "def2e618-0da3-49fc-a14e-f73ec9937270",
-          "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 1
-        },
-        {
-          "location": {
             "x": 716.55878206824764,
             "y": 232.44849358749218
           },

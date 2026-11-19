@@ -20,13 +20,13 @@
                 "Measure": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "fact_forecast_weekly"
+                      "Entity": "fact_replenishment_weekly"
                     }
                   },
                   "Property": "Abs Error"
                 }
               },
-              "queryRef": "fact_forecast_weekly.Abs Error",
+              "queryRef": "fact_replenishment_weekly.Abs Error",
               "nativeQueryRef": "Abs Error"
             }
           ]
@@ -39,7 +39,7 @@
               "Measure": {
                 "Expression": {
                   "SourceRef": {
-                    "Entity": "fact_forecast_weekly"
+                    "Entity": "fact_replenishment_weekly"
                   }
                 },
                 "Property": "Abs Error"

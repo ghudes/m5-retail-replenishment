@@ -355,12 +355,17 @@ A Power BI Desktop project in [`powerbi/`](powerbi/), saved in PBIP format so th
 
 | Page | Purpose |
 |---|---|
-| Suggested Order | Items to order in the selected week: quantity, inventory position against reorder point, days on hand, by store |
-| Out-of-Stock Risk | Projected stockouts and lost units by item, store, state; inferred historical stockouts by category |
+| Suggested Order | Items to order in the selected week, most urgent (fewest days on hand) first: quantity, inventory position against reorder point, by store |
+| Out-of-Stock Risk | Projected stockouts and lost units by item, store, state; simulated vs. projected lost units by week; inferred historical stockouts by department |
 | Forecast Accuracy | WAPE / bias trend by week and department; top error contributors (share of absolute error, computed in DAX), over the last 52 weeks |
+| Item-Store Detail | Drill-through from any table row: one item-store's 52 weeks of inventory position against reorder point and order-up-to level, demand vs. forecast, orders, and lost units |
 
-- RLS: CA, TX, and WI roles filter `dim_store[state_id]`, and the filter flows to every fact
+- RLS: CA, TX, and WI roles filter `dim_store[State]`, and the filter flows to every fact
+- Column names in the model are renamed for readers (`state_id` → State, `item_id` → Item, and so on); Power Query still reads the SQL names
+- Every chart and table has alt text
 - Screenshots: TODO
+
+**Opening the report.** Build the database first (`build.cmd`, section 12), then open `powerbi/M5 Replenishment.pbip` in Power BI Desktop. If SQL Server isn't at `localhost\SQLEXPRESS`, change the Server parameter (Transform data → Edit parameters), then click Refresh.
 
 ### Tableau Public
 - Out-of-Stock Risk view: TODO (link)

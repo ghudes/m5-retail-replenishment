@@ -1,0 +1,53 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "da3934ddf047e3e383e7",
+  "position": {
+    "x": 332,
+    "y": 92,
+    "z": 2000,
+    "height": 104,
+    "width": 300,
+    "tabOrder": 2000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_replenishment_weekly"
+                    }
+                  },
+                  "Property": "Lost Units"
+                }
+              },
+              "queryRef": "fact_replenishment_weekly.Lost Units",
+              "nativeQueryRef": "Lost Units"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Card: Lost Units for the selected item-store'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

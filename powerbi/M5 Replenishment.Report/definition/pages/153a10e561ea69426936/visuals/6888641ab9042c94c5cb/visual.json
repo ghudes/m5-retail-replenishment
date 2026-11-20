@@ -1,0 +1,53 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "6888641ab9042c94c5cb",
+  "position": {
+    "x": 648,
+    "y": 92,
+    "z": 3000,
+    "height": 104,
+    "width": 300,
+    "tabOrder": 3000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_replenishment_weekly"
+                    }
+                  },
+                  "Property": "WAPE"
+                }
+              },
+              "queryRef": "fact_replenishment_weekly.WAPE",
+              "nativeQueryRef": "WAPE"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Card: WAPE for the selected item-store'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

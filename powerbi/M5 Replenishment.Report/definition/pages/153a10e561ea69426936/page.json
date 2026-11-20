@@ -1,0 +1,77 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "153a10e561ea69426936",
+  "displayName": "Item-Store Detail",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280,
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "c05bdaa2f752609ec940",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_item"
+              }
+            },
+            "Property": "Item"
+          }
+        },
+        "type": "Categorical",
+        "howCreated": "Drillthrough"
+      },
+      {
+        "name": "f1c22bf143da371755ea",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_store"
+              }
+            },
+            "Property": "Store"
+          }
+        },
+        "type": "Categorical",
+        "howCreated": "Drillthrough"
+      }
+    ]
+  },
+  "pageBinding": {
+    "name": "ebea2bdee0260953b5cf",
+    "type": "Drillthrough",
+    "parameters": [
+      {
+        "name": "1ad6ea3eef7f11af1d12",
+        "boundFilter": "c05bdaa2f752609ec940",
+        "fieldExpr": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_item"
+              }
+            },
+            "Property": "Item"
+          }
+        }
+      },
+      {
+        "name": "df6ed754b0f170bfc4f2",
+        "boundFilter": "f1c22bf143da371755ea",
+        "fieldExpr": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_store"
+              }
+            },
+            "Property": "Store"
+          }
+        }
+      }
+    ],
+    "acceptsFilterContext": "None"
+  }
+}

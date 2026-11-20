@@ -1,0 +1,53 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "f02973997fdce6004ffb",
+  "position": {
+    "x": 964,
+    "y": 92,
+    "z": 4000,
+    "height": 104,
+    "width": 300,
+    "tabOrder": 4000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_replenishment_weekly"
+                    }
+                  },
+                  "Property": "Bias"
+                }
+              },
+              "queryRef": "fact_replenishment_weekly.Bias",
+              "nativeQueryRef": "Bias"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Card: Bias for the selected item-store'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -2,6 +2,18 @@
 table dim_item
 	lineageTag: 509ed245-65c1-4548-9b47-20479331513d
 
+	/// Title for the drill-through page: the one item and store it was opened for.
+	measure 'Selected Item Store Label' =
+			VAR i = SELECTEDVALUE(dim_item[Item])
+			VAR s = SELECTEDVALUE(dim_store[Store])
+			RETURN
+			    IF(
+			        ISBLANK(i) || ISBLANK(s),
+			        "All item-stores (drill through from a table row to see one)",
+			        i & " at store " & s
+			    )
+		lineageTag: 3c1e0432-6821-425a-a11e-b98ab56bc914
+
 	column item_key
 		dataType: int64
 		isHidden

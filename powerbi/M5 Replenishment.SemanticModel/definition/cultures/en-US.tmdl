@@ -119,6 +119,69 @@ cultureInfo en-US
 			          }
 			        }
 			      ]
+			    },
+			    "fact_replenishment_weekly.series_below_reorder_point": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fact_replenishment_weekly",
+			          "ConceptualProperty": "Series Below Reorder Point"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Item-stores below reorder point": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fact_replenishment_weekly.series_to_order": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fact_replenishment_weekly",
+			          "ConceptualProperty": "Series to Order"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Item-stores to order": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "fact_replenishment_weekly.series_projected_to_stock_out": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "fact_replenishment_weekly",
+			          "ConceptualProperty": "Series Projected to Stock Out"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Item-stores projected to stock out": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    }
 			  }
 			}

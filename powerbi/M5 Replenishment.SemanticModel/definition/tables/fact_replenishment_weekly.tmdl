@@ -214,6 +214,14 @@ table fact_replenishment_weekly
 		displayFolder: Forecast
 		lineageTag: 6affe9e2-d4c5-4a6f-8368-c8a9d168f50f
 
+	/// Subtitle for the lost-units chart: how far simulated losses ran over the forecast's projection.
+	measure 'Lost vs Projected Label' =
+			"Simulated lost units were " & FORMAT(DIVIDE([Lost Units], [Projected Lost Units]), "0.0")
+			    & "× what the forecast projected (" & FORMAT([Lost Units], "#,0")
+			    & " vs. " & FORMAT([Projected Lost Units], "#,0") & ")"
+		displayFolder: Labels
+		lineageTag: cb59e4c2-ac39-4eb4-8f80-1a217292d616
+
 	column week_key
 		dataType: int64
 		isHidden

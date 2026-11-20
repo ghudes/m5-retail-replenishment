@@ -157,8 +157,26 @@
             },
             "text": {
               "expr": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_replenishment_weekly"
+                    }
+                  },
+                  "Property": "Lost vs Projected Label"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
                 "Literal": {
-                  "Value": "'Last 52 weeks, by week'"
+                  "Value": "'Column chart by week over the last 52 weeks comparing simulated lost units (red) with the lost units the forecast projected (gray). Simulated losses are several times larger.'"
                 }
               }
             }

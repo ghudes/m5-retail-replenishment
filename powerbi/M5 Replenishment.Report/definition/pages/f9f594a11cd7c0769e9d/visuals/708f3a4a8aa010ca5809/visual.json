@@ -23,11 +23,11 @@
                       "Entity": "dim_item"
                     }
                   },
-                  "Property": "Category"
+                  "Property": "Department"
                 }
               },
-              "queryRef": "dim_item.Category",
-              "nativeQueryRef": "Category",
+              "queryRef": "dim_item.Department",
+              "nativeQueryRef": "Department",
               "active": true
             }
           ]
@@ -103,7 +103,7 @@
             "text": {
               "expr": {
                 "Literal": {
-                  "Value": "'Inferred historical stockouts by category'"
+                  "Value": "'Inferred historical stockouts by department'"
                 }
               }
             }
@@ -124,6 +124,19 @@
               "expr": {
                 "Literal": {
                   "Value": "'Estimated lost units, 2011–2016. Not filtered by the week slicer.'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Bar chart of estimated lost units from stockouts inferred in the daily sales history, 2011 to 2016, by department.'"
                 }
               }
             }

@@ -31,7 +31,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "Where stock runs out before the next delivery, and what being wrong has cost.",
+                    "value": "Where stock runs out before the next delivery, and what it costs. Right-click a row for its history.",
                     "textStyle": {
                       "fontSize": "10pt",
                       "color": "#605E5C"

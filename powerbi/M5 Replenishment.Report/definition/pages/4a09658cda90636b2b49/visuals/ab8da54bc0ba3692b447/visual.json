@@ -111,6 +111,19 @@
             }
           }
         }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Bar chart of WAPE by department for the selected weeks.'"
+                }
+              }
+            }
+          }
+        }
       ]
     }
   }

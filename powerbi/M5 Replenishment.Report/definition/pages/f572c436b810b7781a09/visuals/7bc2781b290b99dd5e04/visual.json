@@ -182,10 +182,10 @@
                     "Entity": "fact_replenishment_weekly"
                   }
                 },
-                "Property": "Suggested Order Qty"
+                "Property": "Days on Hand"
               }
             },
-            "direction": "Descending"
+            "direction": "Ascending"
           }
         ]
       }
@@ -258,6 +258,19 @@
             "metadata": "fact_replenishment_weekly.Inventory Position"
           }
         }
+      ],
+      "total": [
+        {
+          "properties": {
+            "totals": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
       ]
     },
     "visualContainerObjects": {
@@ -313,6 +326,19 @@
                     }
                   },
                   "Property": "Selected Week Label"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Table of suggested orders for the selected week, one row per item and store, sorted by days on hand, lowest first. A red diamond marks inventory position below the reorder point.'"
                 }
               }
             }

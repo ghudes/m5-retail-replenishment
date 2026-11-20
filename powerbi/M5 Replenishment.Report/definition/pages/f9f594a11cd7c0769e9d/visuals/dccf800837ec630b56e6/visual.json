@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "fact_replenishment_weekly.Series Projected to Stock Out",
-              "nativeQueryRef": "Series Projected to Stock Out"
+              "nativeQueryRef": "Series Projected to Stock Out",
+              "displayName": "Item-stores projected to stock out"
             }
           ]
         }
@@ -51,6 +52,21 @@
         "isDefaultSort": true
       }
     },
-    "drillFilterOtherVisuals": true
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Card: Item-stores projected to stock out'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
   }
 }

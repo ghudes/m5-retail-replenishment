@@ -31,7 +31,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "What to order this week, by item and store. A red ◆ marks inventory position below the reorder point.",
+                    "value": "What to order this week, by item and store. Red ◆ = below reorder point. Right-click a row for its history.",
                     "textStyle": {
                       "fontSize": "10pt",
                       "color": "#605E5C"

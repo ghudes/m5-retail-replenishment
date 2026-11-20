@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "fact_replenishment_weekly.Series to Order",
-              "nativeQueryRef": "Series to Order"
+              "nativeQueryRef": "Series to Order",
+              "displayName": "Item-stores to order"
             }
           ]
         }
@@ -51,6 +52,21 @@
         "isDefaultSort": true
       }
     },
-    "drillFilterOtherVisuals": true
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Card: Item-stores to order'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
   }
 }

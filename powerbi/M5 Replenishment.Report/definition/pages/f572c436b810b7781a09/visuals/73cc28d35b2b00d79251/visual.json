@@ -27,7 +27,8 @@
                 }
               },
               "queryRef": "fact_replenishment_weekly.Series Below Reorder Point",
-              "nativeQueryRef": "Series Below Reorder Point"
+              "nativeQueryRef": "Series Below Reorder Point",
+              "displayName": "Item-stores below reorder point"
             }
           ]
         }
@@ -51,6 +52,21 @@
         "isDefaultSort": true
       }
     },
-    "drillFilterOtherVisuals": true
+    "drillFilterOtherVisuals": true,
+    "visualContainerObjects": {
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Card: Item-stores below reorder point'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
   }
 }
